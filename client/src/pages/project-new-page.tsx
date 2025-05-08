@@ -1,4 +1,3 @@
-import { useState, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import { useLocation } from "wouter";
@@ -29,7 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Upload } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 // Project form schema
 const projectFormSchema = insertProjectSchema.extend({
@@ -52,29 +51,44 @@ export default function ProjectNewPage() {
   const [, navigate] = useLocation();
   const { user } = useAuth();
   const { toast } = useToast();
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  
   // Получаем список клиентов (только для менеджеров и администраторов)
-  const { data: clients = [] } = useQuery({
+  const { data: clients = [], isLoading: isClientsLoading } = useQuery({
     queryKey: ["/api/users/clients"],
     queryFn: async () => {
       if (user?.role !== "admin" && user?.role !== "manager") return [];
-      const res = await fetch("/api/users/clients");
-      if (!res.ok) return [];
-      return await res.json();
+      try {
+        const res = await fetch("/api/users/clients");
+        if (!res.ok) {
+          const errorData = await res.json();
+          console.error("Failed to fetch clients:", errorData);
+          return [];
+        }
+        return await res.json();
+      } catch (error) {
+        console.error("Error fetching clients:", error);
+        return [];
+      }
     },
     enabled: user?.role === "admin" || user?.role === "manager"
   });
 
   // Получаем список менеджеров (только для администраторов)
-  const { data: managers = [] } = useQuery({
+  const { data: managers = [], isLoading: isManagersLoading } = useQuery({
     queryKey: ["/api/users/managers"],
     queryFn: async () => {
       if (user?.role !== "admin") return [];
-      const res = await fetch("/api/users/managers");
-      if (!res.ok) return [];
-      return await res.json();
+      try {
+        const res = await fetch("/api/users/managers");
+        if (!res.ok) {
+          const errorData = await res.json();
+          console.error("Failed to fetch managers:", errorData);
+          return [];
+        }
+        return await res.json();
+      } catch (error) {
+        console.error("Error fetching managers:", error);
+        return [];
+      }
     },
     enabled: user?.role === "admin"
   });
@@ -120,51 +134,10 @@ export default function ProjectNewPage() {
     },
   });
   
-  // Обработка выбора файлов
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const newFiles = Array.from(e.target.files);
-      setSelectedFiles(prev => [...prev, ...newFiles]);
-    }
-  };
-
-  // Удаление файла из списка выбранных
-  const removeFile = (index: number) => {
-    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
-  };
-
-  // Открытие диалога выбора файлов
-  const openFileSelector = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
-
   async function onSubmit(values: ProjectFormValues) {
     try {
       // Создаем проект
       const project = await createProjectMutation.mutateAsync(values);
-      
-      // Если есть выбранные файлы, загружаем их
-      if (selectedFiles.length > 0 && project?.id) {
-        const formData = new FormData();
-        formData.append('projectId', project.id.toString());
-        
-        // Добавляем все файлы в FormData
-        selectedFiles.forEach(file => {
-          formData.append('files', file);
-        });
-        
-        // Загружаем файлы
-        const uploadRes = await fetch('/api/project-files/upload', {
-          method: 'POST',
-          body: formData,
-        });
-        
-        if (!uploadRes.ok) {
-          throw new Error('Failed to upload files');
-        }
-      }
       
       // Перенаправляем на страницу проекта
       navigate(`/projects/${project.id}`);
@@ -312,18 +285,25 @@ export default function ProjectNewPage() {
                         <Select
                           onValueChange={(value) => field.onChange(parseInt(value))}
                           defaultValue={field.value?.toString()}
+                          disabled={isClientsLoading}
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Выберите клиента" />
+                              <SelectValue placeholder={isClientsLoading ? "Загрузка клиентов..." : "Выберите клиента"} />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {clients.map((client) => (
-                              <SelectItem key={client.id} value={client.id.toString()}>
-                                {client.firstName} {client.lastName} ({client.email})
+                            {clients && clients.length > 0 ? (
+                              clients.map((client) => (
+                                <SelectItem key={client.id} value={client.id.toString()}>
+                                  {client.firstName} {client.lastName} ({client.email})
+                                </SelectItem>
+                              ))
+                            ) : (
+                              <SelectItem value="no-clients" disabled>
+                                {isClientsLoading ? "Загрузка..." : "Нет доступных клиентов"}
                               </SelectItem>
-                            ))}
+                            )}
                           </SelectContent>
                         </Select>
                         <FormDescription>
@@ -346,18 +326,25 @@ export default function ProjectNewPage() {
                         <Select
                           onValueChange={(value) => field.onChange(parseInt(value))}
                           defaultValue={field.value?.toString()}
+                          disabled={isManagersLoading}
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Выберите менеджера" />
+                              <SelectValue placeholder={isManagersLoading ? "Загрузка менеджеров..." : "Выберите менеджера"} />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {managers.map((manager) => (
-                              <SelectItem key={manager.id} value={manager.id.toString()}>
-                                {manager.firstName} {manager.lastName} ({manager.email})
+                            {managers && managers.length > 0 ? (
+                              managers.map((manager) => (
+                                <SelectItem key={manager.id} value={manager.id.toString()}>
+                                  {manager.firstName} {manager.lastName} ({manager.email})
+                                </SelectItem>
+                              ))
+                            ) : (
+                              <SelectItem value="no-managers" disabled>
+                                {isManagersLoading ? "Загрузка..." : "Нет доступных менеджеров"}
                               </SelectItem>
-                            ))}
+                            )}
                           </SelectContent>
                         </Select>
                         <FormDescription>
@@ -369,58 +356,7 @@ export default function ProjectNewPage() {
                   />
                 )}
 
-                {/* Загрузка файлов */}
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-sm font-medium mb-2">Прикрепить файлы</h3>
-                    <div className="border rounded-md p-3">
-                      <input
-                        type="file"
-                        multiple
-                        className="hidden"
-                        ref={fileInputRef}
-                        onChange={handleFileChange}
-                      />
-                      <div className="flex flex-col items-center justify-center py-4 gap-2">
-                        <Upload className="h-8 w-8 text-muted-foreground" />
-                        <p className="text-sm text-muted-foreground text-center">
-                          Перетащите файлы сюда или нажмите, чтобы выбрать файлы
-                        </p>
-                        <Button 
-                          type="button" 
-                          variant="outline" 
-                          size="sm"
-                          onClick={openFileSelector}
-                        >
-                          Выбрать файлы
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
 
-                  {/* Список выбранных файлов */}
-                  {selectedFiles.length > 0 && (
-                    <div className="border rounded-md p-3">
-                      <h3 className="text-sm font-medium mb-2">Выбранные файлы</h3>
-                      <ul className="space-y-2">
-                        {selectedFiles.map((file, index) => (
-                          <li key={index} className="text-sm flex justify-between items-center">
-                            <span className="truncate max-w-[240px]">{file.name}</span>
-                            <Button 
-                              type="button" 
-                              variant="ghost" 
-                              size="sm" 
-                              onClick={() => removeFile(index)}
-                            >
-                              Удалить
-                            </Button>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-                
                 <div className="pt-4">
                   <Button 
                     type="submit" 
