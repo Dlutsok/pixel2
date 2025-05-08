@@ -243,7 +243,12 @@ export default function AuthPage() {
               
               <CardFooter className="justify-center">
                 <p className="text-sm text-neutral-500">
-                  Нет аккаунта? <TabsTrigger value="register" className="text-primary underline px-0">Зарегистрируйтесь</TabsTrigger>
+                  Нет аккаунта? <button 
+                    type="button" 
+                    onClick={() => document.querySelector('[value="register"]')?.dispatchEvent(new MouseEvent('click'))}
+                    className="text-primary underline px-0 bg-transparent border-none">
+                    Зарегистрируйтесь
+                  </button>
                 </p>
               </CardFooter>
             </Card>
@@ -350,7 +355,12 @@ export default function AuthPage() {
               
               <CardFooter className="justify-center">
                 <p className="text-sm text-neutral-500">
-                  Уже есть аккаунт? <TabsTrigger value="login" className="text-primary underline px-0">Войдите</TabsTrigger>
+                  Уже есть аккаунт? <button 
+                    type="button" 
+                    onClick={() => document.querySelector('[value="login"]')?.dispatchEvent(new MouseEvent('click'))}
+                    className="text-primary underline px-0 bg-transparent border-none">
+                    Войдите
+                  </button>
                 </p>
               </CardFooter>
             </Card>
