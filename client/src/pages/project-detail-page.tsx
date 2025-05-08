@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams, Link } from "wouter";
+import { useParams, Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import Layout from "@/components/layout/layout";
@@ -12,11 +12,12 @@ import ProjectStatusBadge from "@/components/projects/project-status-badge";
 import ActivityItem from "@/components/dashboard/activity-item";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
-import { File, Calendar, Users, ChevronLeft } from "lucide-react";
+import { File, Calendar, Users, ChevronLeft, Download } from "lucide-react";
 
 export default function ProjectDetailPage() {
   const params = useParams<{ id: string }>();
   const projectId = parseInt(params.id);
+  const [, navigate] = useLocation();
   const { user } = useAuth();
   
   // Fetch project details
@@ -125,7 +126,9 @@ export default function ProjectDetailPage() {
             </div>
             
             {user?.role !== "client" && (
-              <Button>Редактировать проект</Button>
+              <Button onClick={() => navigate(`/projects/${projectId}/edit`)}>
+                Редактировать проект
+              </Button>
             )}
           </div>
         </div>
@@ -265,7 +268,12 @@ export default function ProjectDetailPage() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-lg">Файлы проекта</CardTitle>
-                <Button size="sm">Загрузить файл</Button>
+                <Button 
+                  size="sm" 
+                  onClick={() => navigate(`/projects/${projectId}/edit?tab=files`)}
+                >
+                  Загрузить файл
+                </Button>
               </CardHeader>
               <CardContent>
                 {isLoadingFiles ? (
