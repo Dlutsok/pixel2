@@ -12,6 +12,10 @@ import {
 } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
+import { scrypt, randomBytes, timingSafeEqual } from "crypto";
+import { promisify } from "util";
+
+const scryptAsync = promisify(scrypt);
 
 const MemoryStore = createMemoryStore(session);
 
@@ -124,10 +128,11 @@ export class MemStorage implements IStorage {
   }
 
   private seedInitialData() {
-    // Create demo admin user
+    // Create demo admin user with plaintext passwords
+    // They will be hashed properly in the createUser method
     this.createUser({
       email: "admin@webstudio.com",
-      password: "$2b$10$NrGkMwZ2rR.dZrXIX/v1K.RCeLwPT6sTYrVJhJXw7olO4M0b3xINi", // password: admin123
+      password: "admin123", // Will be hashed in createUser method
       firstName: "Admin",
       lastName: "User",
       role: "admin",
@@ -137,7 +142,7 @@ export class MemStorage implements IStorage {
     // Create demo manager user
     this.createUser({
       email: "manager@webstudio.com",
-      password: "$2b$10$xEEtq0IhEQqPLN2JfJcfDuKnZLHYAplZbO5I46oU9ZmH7uh9Zqcfm", // password: manager123
+      password: "manager123", // Will be hashed in createUser method
       firstName: "Manager",
       lastName: "User",
       role: "manager",
@@ -147,7 +152,7 @@ export class MemStorage implements IStorage {
     // Create demo client user
     this.createUser({
       email: "client@example.com",
-      password: "$2b$10$ntFzGsb/lcjxmH9cxXY3vOmjaLWa9.hjOvf3jTvOOl6qA8lfsxhuu", // password: client123
+      password: "client123", // Will be hashed in createUser method
       firstName: "Client",
       lastName: "User",
       role: "client",
@@ -171,8 +176,17 @@ export class MemStorage implements IStorage {
     const avatarInitials = userData.avatarInitials || 
       `${userData.firstName.charAt(0)}${userData.lastName.charAt(0)}`;
     
+    // Hash password if needed
+    let password = userData.password;
+    if (!password.includes('.')) { // Simple check if the password is already hashed
+      const salt = randomBytes(16).toString("hex");
+      const buf = (await scryptAsync(password, salt, 64)) as Buffer;
+      password = `${buf.toString("hex")}.${salt}`;
+    }
+    
     const user: User = { 
       ...userData, 
+      password,
       id,
       avatarInitials 
     };
