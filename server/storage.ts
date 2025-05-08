@@ -175,26 +175,50 @@ export class DatabaseStorage implements IStorage {
 
   // Project operations
   async getAllProjects(): Promise<Project[]> {
-    return await db.select().from(projects);
+    console.log("getAllProjects: Fetching all projects from database");
+    const result = await db.select().from(projects);
+    console.log(`getAllProjects: Retrieved ${result.length} projects`);
+    if (result.length > 0) {
+      console.log("Project statuses found:", result.map(p => p.status).join(", "));
+    }
+    return result;
   }
 
   async getProject(id: number): Promise<Project | undefined> {
+    console.log(`getProject: Fetching project with ID ${id}`);
     const [project] = await db.select().from(projects).where(eq(projects.id, id));
+    console.log(`getProject: Project found: ${project ? 'Yes' : 'No'}`);
+    if (project) {
+      console.log(`Project status: ${project.status}`);
+    }
     return project;
   }
 
   async getProjectsByClientId(clientId: number): Promise<Project[]> {
-    return await db.select().from(projects).where(eq(projects.clientId, clientId));
+    console.log(`getProjectsByClientId: Fetching projects for client ID ${clientId}`);
+    const result = await db.select().from(projects).where(eq(projects.clientId, clientId));
+    console.log(`getProjectsByClientId: Retrieved ${result.length} projects`);
+    if (result.length > 0) {
+      console.log("Project statuses found:", result.map(p => p.status).join(", "));
+    }
+    return result;
   }
 
   async getProjectsByManagerId(managerId: number): Promise<Project[]> {
-    return await db.select().from(projects).where(eq(projects.managerId, managerId));
+    console.log(`getProjectsByManagerId: Fetching projects for manager ID ${managerId}`);
+    const result = await db.select().from(projects).where(eq(projects.managerId, managerId));
+    console.log(`getProjectsByManagerId: Retrieved ${result.length} projects`);
+    if (result.length > 0) {
+      console.log("Project statuses found:", result.map(p => p.status).join(", "));
+    }
+    return result;
   }
 
   async createProject(projectData: InsertProject): Promise<Project> {
+    console.log("Creating project with status:", projectData.status || 'new');
     const [project] = await db.insert(projects).values({
       name: projectData.name,
-      status: projectData.status || 'pending',
+      status: projectData.status || 'new',
       progress: projectData.progress || 0,
       description: projectData.description || null,
       domain: projectData.domain || null,
@@ -205,6 +229,7 @@ export class DatabaseStorage implements IStorage {
       managerId: projectData.managerId || null
     }).returning();
     
+    console.log("Project created with status:", project.status);
     return project;
   }
 
