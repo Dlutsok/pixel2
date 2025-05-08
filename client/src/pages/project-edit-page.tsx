@@ -297,6 +297,19 @@ export default function ProjectEditPage() {
         {/* Form */}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {/* Если в URL есть параметр tab=files, прокручиваем до секции файлов */}
+            {activeTab === 'files' && (
+              <div ref={(el) => {
+                if (el) {
+                  setTimeout(() => {
+                    const filesSection = document.getElementById('files-section');
+                    if (filesSection) {
+                      filesSection.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }, 100);
+                }
+              }}></div>
+            )}
             <Card>
               <CardHeader>
                 <CardTitle>Основная информация</CardTitle>
@@ -564,7 +577,7 @@ export default function ProjectEditPage() {
             </Card>
             
             {/* Файлы проекта */}
-            <Card>
+            <Card id="files-section">
               <CardHeader>
                 <CardTitle>Файлы проекта</CardTitle>
               </CardHeader>
