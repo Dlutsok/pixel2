@@ -274,6 +274,174 @@ export default function FinancePage() {
                 className="pl-10"
               />
             </div>
+            
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="whitespace-nowrap gap-1">
+                  <Plus className="h-4 w-4" />
+                  Добавить документ
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[500px]">
+                <DialogHeader>
+                  <DialogTitle>Добавить финансовый документ</DialogTitle>
+                  <DialogDescription>
+                    Заполните форму для создания нового финансового документа
+                  </DialogDescription>
+                </DialogHeader>
+                
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Название</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Название документа" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="type"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Тип документа</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Выберите тип документа" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="invoice">Счет</SelectItem>
+                              <SelectItem value="receipt">Чек</SelectItem>
+                              <SelectItem value="contract">Договор</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="status"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Статус</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Выберите статус" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="pending">Ожидает оплаты</SelectItem>
+                              <SelectItem value="paid">Оплачен</SelectItem>
+                              <SelectItem value="overdue">Просрочен</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="projectId"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Проект</FormLabel>
+                          <Select onValueChange={(value) => field.onChange(Number(value) || undefined)} defaultValue={field.value?.toString()}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Выберите проект (опционально)" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {projects?.map((project) => (
+                                <SelectItem key={project.id} value={project.id.toString()}>
+                                  {project.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="amount"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Сумма</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              placeholder="Сумма в рублях" 
+                              {...field}
+                              onChange={(e) => field.onChange(e.target.value === "" ? undefined : Number(e.target.value))}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="dueDate"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Срок оплаты</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="date" 
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Дата, до которой должен быть оплачен документ
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <div className="flex justify-end space-x-2 pt-4">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setIsAddDialogOpen(false)}
+                      >
+                        Отмена
+                      </Button>
+                      <Button 
+                        type="submit"
+                        disabled={createDocumentMutation.isPending}
+                        className="gap-1"
+                      >
+                        {createDocumentMutation.isPending && (
+                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                        )}
+                        Создать документ
+                      </Button>
+                    </div>
+                  </form>
+                </Form>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
         

@@ -663,36 +663,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/finance-documents", hasRole(["admin", "manager"]), async (req, res) => {
+  app.post("/api/finance-documents", ensureAuthenticated, async (req, res) => {
     try {
+      const userRole = req.user.role;
+      const userId = req.user.id;
+
+      // Создаем финансовый документ с учетом текущего пользователя
       const documentData = insertFinanceDocumentSchema.parse({
         ...req.body,
         createdAt: new Date(),
       });
-      
-      // If document is associated with a project, verify access
-      if (documentData.projectId) {
-        const project = await storage.getProject(documentData.projectId);
-        if (!project) {
-          return res.status(404).json({ message: "Project not found" });
+
+      // Если пользователь - клиент, убедиться, что clientId соответствует их ID
+      if (userRole === "client") {
+        // Клиенты могут создавать только свои документы
+        if (documentData.clientId && documentData.clientId !== userId) {
+          return res.status(403).json({ message: "Вы можете создавать документы только для себя" });
         }
+        // Устанавливаем clientId как ID клиента
+        documentData.clientId = userId;
         
-        if (req.user.role === "manager" && project.managerId !== req.user.id) {
-          return res.status(403).json({ message: "Access denied" });
+        // Проверяем, связан ли клиент с проектом, если указан projectId
+        if (documentData.projectId) {
+          const project = await storage.getProject(documentData.projectId);
+          if (!project) {
+            return res.status(404).json({ message: "Проект не найден" });
+          }
+          
+          if (project.clientId !== userId) {
+            return res.status(403).json({ message: "Вы можете создавать документы только для своих проектов" });
+          }
+        }
+      } else if (userRole === "manager") {
+        // Если документ связан с проектом, проверяем доступ
+        if (documentData.projectId) {
+          const project = await storage.getProject(documentData.projectId);
+          if (!project) {
+            return res.status(404).json({ message: "Проект не найден" });
+          }
+          
+          if (project.managerId !== userId) {
+            return res.status(403).json({ message: "Доступ запрещен" });
+          }
         }
       }
       
       const document = await storage.createFinanceDocument(documentData);
       
-      // Create activity for document creation if associated with project
+      // Создаем запись активности, если документ связан с проектом
       if (documentData.projectId) {
         await storage.createActivity({
-          userId: req.user.id,
+          userId: userId,
           actionType: "finance_document_created",
           resourceType: "finance_document",
           resourceId: document.id,
           projectId: documentData.projectId,
-          description: `Finance document "${document.name}" was created`,
+          description: `Финансовый документ "${document.name}" был создан`,
           createdAt: new Date(),
           metadata: {},
         });
@@ -701,7 +727,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(document);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid document data", errors: error.errors });
+        return res.status(400).json({ message: "Неверные данные документа", errors: error.errors });
       }
       res.status(500).json({ message: "Failed to create finance document" });
     }
