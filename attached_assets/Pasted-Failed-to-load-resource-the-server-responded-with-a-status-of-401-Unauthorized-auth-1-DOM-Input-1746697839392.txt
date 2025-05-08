@@ -1,0 +1,233 @@
+Failed to load resource: the server responded with a status of 401 (Unauthorized)
+auth:1 [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) <input type=​"password" class=​"flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:​border-0 file:​bg-transparent file:​text-sm file:​font-medium file:​text-foreground placeholder:​text-muted-foreground focus-visible:​outline-none focus-visible:​ring-2 focus-visible:​ring-ring focus-visible:​ring-offset-2 disabled:​cursor-not-allowed disabled:​opacity-50 md:​text-sm" placeholder=​"••••••••" name=​"password" id=​":​r4:​-form-item" aria-describedby=​":​r4:​-form-item-description" aria-invalid=​"false" value=​"admin123">​
+auth:1 [Intervention] Slow network is detected. See https://www.chromestatus.com/feature/5636954674692096 for more details. Fallback font will be used while loading: https://fonts.gstatic.com/s/materialicons/v143/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.woff2
+hook.js:608 Warning: validateDOMNesting(...): <a> cannot appear as a descendant of <a>. Error Component Stack
+    at a (<anonymous>)
+    at a (<anonymous>)
+    at wouter.js?v=56a53a80:337:18
+    at nav (<anonymous>)
+    at aside (<anonymous>)
+    at Sidebar (sidebar.tsx:19:22)
+    at div (<anonymous>)
+    at Layout (layout.tsx:11:34)
+    at DashboardPage (dashboard-page.tsx:21:20)
+    at Route (wouter.js?v=56a53a80:323:16)
+    at ProtectedRoute (protected-route.tsx:6:3)
+    at Switch (wouter.js?v=56a53a80:379:17)
+    at Router (<anonymous>)
+    at Provider (chunk-OXZDJRWN.js?v=93cc5f0c:38:15)
+    at TooltipProvider (@radix-ui_react-tooltip.js?v=f52180a6:64:5)
+    at AuthProvider (use-auth.tsx:39:32)
+    at V (next-themes.js?v=e7e391d0:44:25)
+    at J (next-themes.js?v=e7e391d0:42:18)
+    at QueryClientProvider (@tanstack_react-query.js?v=25a1b8a9:2805:3)
+    at App (<anonymous>)
+overrideMethod @ hook.js:608
+hook.js:608 `DialogContent` requires a `DialogTitle` for the component to be accessible for screen reader users.
+
+If you want to hide the `DialogTitle`, you can wrap it with our VisuallyHidden component.
+
+For more information, see https://radix-ui.com/primitives/docs/components/dialog Error Component Stack
+    at TitleWarning (@radix-ui_react-dialog.js?v=55b4acc9:318:23)
+    at @radix-ui_react-dialog.js?v=55b4acc9:238:13
+    at @radix-ui_react-dialog.js?v=55b4acc9:161:58
+    at Presence (chunk-E4UC4BFD.js?v=93cc5f0c:24:11)
+    at @radix-ui_react-dialog.js?v=55b4acc9:152:64
+    at chunk-2K77HOHX.js?v=93cc5f0c:79:13
+    at chunk-2K77HOHX.js?v=93cc5f0c:56:13
+    at chunk-AXMZZQ2X.js?v=93cc5f0c:42:13
+    at chunk-G76BAGTM.js?v=93cc5f0c:260:22
+    at Presence (chunk-E4UC4BFD.js?v=93cc5f0c:24:11)
+    at Provider (chunk-OXZDJRWN.js?v=93cc5f0c:38:15)
+    at DialogPortal (@radix-ui_react-dialog.js?v=55b4acc9:114:11)
+    at _c3 (dialog.tsx:35:6)
+    at Provider (chunk-OXZDJRWN.js?v=93cc5f0c:38:15)
+    at Dialog (@radix-ui_react-dialog.js?v=55b4acc9:55:5)
+    at div (<anonymous>)
+    at _c9 (card.tsx:62:6)
+    at div (<anonymous>)
+    at _c (card.tsx:8:6)
+    at div (<anonymous>)
+    at main (<anonymous>)
+    at div (<anonymous>)
+    at Layout (layout.tsx:11:34)
+    at TasksPage (tasks-page.tsx:76:22)
+    at Route (wouter.js?v=56a53a80:323:16)
+    at ProtectedRoute (protected-route.tsx:6:3)
+    at Switch (wouter.js?v=56a53a80:379:17)
+    at Router (<anonymous>)
+    at Provider (chunk-OXZDJRWN.js?v=93cc5f0c:38:15)
+    at TooltipProvider (@radix-ui_react-tooltip.js?v=f52180a6:64:5)
+    at AuthProvider (use-auth.tsx:39:32)
+    at V (next-themes.js?v=e7e391d0:44:25)
+    at J (next-themes.js?v=e7e391d0:42:18)
+    at QueryClientProvider (@tanstack_react-query.js?v=25a1b8a9:2805:3)
+    at App (<anonymous>)
+overrideMethod @ hook.js:608
+(анонимная) @ @radix-ui_react-dialog.js?v=55b4acc9:328
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=93cc5f0c:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=93cc5f0c:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=93cc5f0c:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=93cc5f0c:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=93cc5f0c:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=93cc5f0c:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=93cc5f0c:19447
+commitRootImpl @ chunk-RPCDYKBN.js?v=93cc5f0c:19416
+commitRoot @ chunk-RPCDYKBN.js?v=93cc5f0c:19277
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=93cc5f0c:18895
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=93cc5f0c:9119
+(анонимная) @ chunk-RPCDYKBN.js?v=93cc5f0c:18627
+hook.js:608 Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}. Error Component Stack
+    at DescriptionWarning (@radix-ui_react-dialog.js?v=55b4acc9:334:29)
+    at @radix-ui_react-dialog.js?v=55b4acc9:238:13
+    at @radix-ui_react-dialog.js?v=55b4acc9:161:58
+    at Presence (chunk-E4UC4BFD.js?v=93cc5f0c:24:11)
+    at @radix-ui_react-dialog.js?v=55b4acc9:152:64
+    at chunk-2K77HOHX.js?v=93cc5f0c:79:13
+    at chunk-2K77HOHX.js?v=93cc5f0c:56:13
+    at chunk-AXMZZQ2X.js?v=93cc5f0c:42:13
+    at chunk-G76BAGTM.js?v=93cc5f0c:260:22
+    at Presence (chunk-E4UC4BFD.js?v=93cc5f0c:24:11)
+    at Provider (chunk-OXZDJRWN.js?v=93cc5f0c:38:15)
+    at DialogPortal (@radix-ui_react-dialog.js?v=55b4acc9:114:11)
+    at _c3 (dialog.tsx:35:6)
+    at Provider (chunk-OXZDJRWN.js?v=93cc5f0c:38:15)
+    at Dialog (@radix-ui_react-dialog.js?v=55b4acc9:55:5)
+    at div (<anonymous>)
+    at _c9 (card.tsx:62:6)
+    at div (<anonymous>)
+    at _c (card.tsx:8:6)
+    at div (<anonymous>)
+    at main (<anonymous>)
+    at div (<anonymous>)
+    at Layout (layout.tsx:11:34)
+    at TasksPage (tasks-page.tsx:76:22)
+    at Route (wouter.js?v=56a53a80:323:16)
+    at ProtectedRoute (protected-route.tsx:6:3)
+    at Switch (wouter.js?v=56a53a80:379:17)
+    at Router (<anonymous>)
+    at Provider (chunk-OXZDJRWN.js?v=93cc5f0c:38:15)
+    at TooltipProvider (@radix-ui_react-tooltip.js?v=f52180a6:64:5)
+    at AuthProvider (use-auth.tsx:39:32)
+    at V (next-themes.js?v=e7e391d0:44:25)
+    at J (next-themes.js?v=e7e391d0:42:18)
+    at QueryClientProvider (@tanstack_react-query.js?v=25a1b8a9:2805:3)
+    at App (<anonymous>)
+overrideMethod @ hook.js:608
+(анонимная) @ @radix-ui_react-dialog.js?v=55b4acc9:342
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=93cc5f0c:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=93cc5f0c:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=93cc5f0c:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=93cc5f0c:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=93cc5f0c:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=93cc5f0c:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=93cc5f0c:19447
+commitRootImpl @ chunk-RPCDYKBN.js?v=93cc5f0c:19416
+commitRoot @ chunk-RPCDYKBN.js?v=93cc5f0c:19277
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=93cc5f0c:18895
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=93cc5f0c:9119
+(анонимная) @ chunk-RPCDYKBN.js?v=93cc5f0c:18627
+hook.js:608 `DialogContent` requires a `DialogTitle` for the component to be accessible for screen reader users.
+
+If you want to hide the `DialogTitle`, you can wrap it with our VisuallyHidden component.
+
+For more information, see https://radix-ui.com/primitives/docs/components/dialog Error Component Stack
+    at TitleWarning (@radix-ui_react-dialog.js?v=55b4acc9:318:23)
+    at @radix-ui_react-dialog.js?v=55b4acc9:238:13
+    at @radix-ui_react-dialog.js?v=55b4acc9:161:58
+    at Presence (chunk-E4UC4BFD.js?v=93cc5f0c:24:11)
+    at @radix-ui_react-dialog.js?v=55b4acc9:152:64
+    at chunk-2K77HOHX.js?v=93cc5f0c:79:13
+    at chunk-2K77HOHX.js?v=93cc5f0c:56:13
+    at chunk-AXMZZQ2X.js?v=93cc5f0c:42:13
+    at chunk-G76BAGTM.js?v=93cc5f0c:260:22
+    at Presence (chunk-E4UC4BFD.js?v=93cc5f0c:24:11)
+    at Provider (chunk-OXZDJRWN.js?v=93cc5f0c:38:15)
+    at DialogPortal (@radix-ui_react-dialog.js?v=55b4acc9:114:11)
+    at _c3 (dialog.tsx:35:6)
+    at Provider (chunk-OXZDJRWN.js?v=93cc5f0c:38:15)
+    at Dialog (@radix-ui_react-dialog.js?v=55b4acc9:55:5)
+    at div (<anonymous>)
+    at _c9 (card.tsx:62:6)
+    at div (<anonymous>)
+    at _c (card.tsx:8:6)
+    at div (<anonymous>)
+    at main (<anonymous>)
+    at div (<anonymous>)
+    at Layout (layout.tsx:11:34)
+    at TasksPage (tasks-page.tsx:76:22)
+    at Route (wouter.js?v=56a53a80:323:16)
+    at ProtectedRoute (protected-route.tsx:6:3)
+    at Switch (wouter.js?v=56a53a80:379:17)
+    at Router (<anonymous>)
+    at Provider (chunk-OXZDJRWN.js?v=93cc5f0c:38:15)
+    at TooltipProvider (@radix-ui_react-tooltip.js?v=f52180a6:64:5)
+    at AuthProvider (use-auth.tsx:39:32)
+    at V (next-themes.js?v=e7e391d0:44:25)
+    at J (next-themes.js?v=e7e391d0:42:18)
+    at QueryClientProvider (@tanstack_react-query.js?v=25a1b8a9:2805:3)
+    at App (<anonymous>)
+overrideMethod @ hook.js:608
+(анонимная) @ @radix-ui_react-dialog.js?v=55b4acc9:328
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=93cc5f0c:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=93cc5f0c:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=93cc5f0c:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=93cc5f0c:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=93cc5f0c:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=93cc5f0c:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=93cc5f0c:19447
+commitRootImpl @ chunk-RPCDYKBN.js?v=93cc5f0c:19416
+commitRoot @ chunk-RPCDYKBN.js?v=93cc5f0c:19277
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=93cc5f0c:18895
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=93cc5f0c:9119
+(анонимная) @ chunk-RPCDYKBN.js?v=93cc5f0c:18627
+hook.js:608 Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}. Error Component Stack
+    at DescriptionWarning (@radix-ui_react-dialog.js?v=55b4acc9:334:29)
+    at @radix-ui_react-dialog.js?v=55b4acc9:238:13
+    at @radix-ui_react-dialog.js?v=55b4acc9:161:58
+    at Presence (chunk-E4UC4BFD.js?v=93cc5f0c:24:11)
+    at @radix-ui_react-dialog.js?v=55b4acc9:152:64
+    at chunk-2K77HOHX.js?v=93cc5f0c:79:13
+    at chunk-2K77HOHX.js?v=93cc5f0c:56:13
+    at chunk-AXMZZQ2X.js?v=93cc5f0c:42:13
+    at chunk-G76BAGTM.js?v=93cc5f0c:260:22
+    at Presence (chunk-E4UC4BFD.js?v=93cc5f0c:24:11)
+    at Provider (chunk-OXZDJRWN.js?v=93cc5f0c:38:15)
+    at DialogPortal (@radix-ui_react-dialog.js?v=55b4acc9:114:11)
+    at _c3 (dialog.tsx:35:6)
+    at Provider (chunk-OXZDJRWN.js?v=93cc5f0c:38:15)
+    at Dialog (@radix-ui_react-dialog.js?v=55b4acc9:55:5)
+    at div (<anonymous>)
+    at _c9 (card.tsx:62:6)
+    at div (<anonymous>)
+    at _c (card.tsx:8:6)
+    at div (<anonymous>)
+    at main (<anonymous>)
+    at div (<anonymous>)
+    at Layout (layout.tsx:11:34)
+    at TasksPage (tasks-page.tsx:76:22)
+    at Route (wouter.js?v=56a53a80:323:16)
+    at ProtectedRoute (protected-route.tsx:6:3)
+    at Switch (wouter.js?v=56a53a80:379:17)
+    at Router (<anonymous>)
+    at Provider (chunk-OXZDJRWN.js?v=93cc5f0c:38:15)
+    at TooltipProvider (@radix-ui_react-tooltip.js?v=f52180a6:64:5)
+    at AuthProvider (use-auth.tsx:39:32)
+    at V (next-themes.js?v=e7e391d0:44:25)
+    at J (next-themes.js?v=e7e391d0:42:18)
+    at QueryClientProvider (@tanstack_react-query.js?v=25a1b8a9:2805:3)
+    at App (<anonymous>)
+overrideMethod @ hook.js:608
+(анонимная) @ @radix-ui_react-dialog.js?v=55b4acc9:342
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=93cc5f0c:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=93cc5f0c:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=93cc5f0c:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=93cc5f0c:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=93cc5f0c:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=93cc5f0c:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=93cc5f0c:19447
+commitRootImpl @ chunk-RPCDYKBN.js?v=93cc5f0c:19416
+commitRoot @ chunk-RPCDYKBN.js?v=93cc5f0c:19277
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=93cc5f0c:18895
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=93cc5f0c:9119
+(анонимная) @ chunk-RPCDYKBN.js?v=93cc5f0c:18627
