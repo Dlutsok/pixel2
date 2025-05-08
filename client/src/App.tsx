@@ -20,6 +20,7 @@ import ChatPage from "@/pages/chat-page";
 import FinancePage from "@/pages/finance-page";
 import SupportPage from "@/pages/support-page";
 import ProfilePage from "@/pages/profile-page";
+import UsersPage from "@/pages/users-page";
 
 // Components
 import DashboardRouter from "@/components/dashboard-router";
@@ -39,6 +40,7 @@ function Router() {
       <ProtectedRoute path="/finance" component={FinancePage} />
       <ProtectedRoute path="/support" component={SupportPage} />
       <ProtectedRoute path="/profile" component={ProfilePage} />
+      <ProtectedRoute path="/users" component={UsersPage} />
       <Route component={NotFound} />
     </Switch>
   );

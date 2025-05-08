@@ -958,6 +958,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/users/:id", ensureAuthenticated, hasRole(["admin"]), async (req, res) => {
     try {
       const userId = parseInt(req.params.id);
+      
+      // Проверка на валидный числовой ID
+      if (isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+      
       const user = await storage.getUser(userId);
       
       if (!user) {
@@ -1009,6 +1015,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/users/:id", ensureAuthenticated, hasRole(["admin"]), async (req, res) => {
     try {
       const userId = parseInt(req.params.id);
+      
+      // Проверка на валидный числовой ID
+      if (isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+      
       const userData = { ...req.body };
       
       // Проверяем существование пользователя

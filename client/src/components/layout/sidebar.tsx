@@ -11,7 +11,8 @@ import {
   HelpCircle, 
   LogOut, 
   Menu,
-  X
+  X,
+  Users
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -28,6 +29,7 @@ export default function Sidebar() {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
   
+  // Основные пункты меню
   const navItems = [
     { href: "/", label: "Дашборд", icon: <LayoutDashboard className="h-5 w-5" /> },
     { href: "/projects", label: "Проекты", icon: <FolderClosed className="h-5 w-5" /> },
@@ -35,6 +37,11 @@ export default function Sidebar() {
     { href: "/chat", label: "Чат", icon: <MessageSquare className="h-5 w-5" /> },
     { href: "/finance", label: "Финансы", icon: <CreditCard className="h-5 w-5" /> },
     { href: "/support", label: "Поддержка", icon: <HelpCircle className="h-5 w-5" /> },
+  ];
+  
+  // Пункты меню для администратора
+  const adminItems = [
+    { href: "/users", label: "Пользователи", icon: <Users className="h-5 w-5" /> },
   ];
   
   const handleLogout = () => {
@@ -84,6 +91,7 @@ export default function Sidebar() {
       </div>
       
       <nav className="p-4 space-y-1">
+        {/* Основные пункты меню для всех пользователей */}
         {navItems.map((item) => (
           <Link key={item.href} href={item.href}>
             <div
@@ -104,6 +112,36 @@ export default function Sidebar() {
             </div>
           </Link>
         ))}
+        
+        {/* Пункты меню только для администраторов */}
+        {user.role === "admin" && adminItems.length > 0 && (
+          <>
+            <div className="py-2">
+              <div className="h-px bg-neutral-200" />
+            </div>
+            
+            {adminItems.map((item) => (
+              <Link key={item.href} href={item.href}>
+                <div
+                  className={cn(
+                    "flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors",
+                    location === item.href 
+                      ? "bg-primary/10 text-primary font-medium" 
+                      : "text-neutral-700 hover:bg-neutral-100"
+                  )}
+                >
+                  {item.icon}
+                  <span>{item.label}</span>
+                  {item.badge && (
+                    <span className="ml-auto bg-primary text-white text-xs px-2 py-1 rounded-full">
+                      {item.badge}
+                    </span>
+                  )}
+                </div>
+              </Link>
+            ))}
+          </>
+        )}
       </nav>
       
       <div className="mt-auto p-4 border-t border-neutral-200">
