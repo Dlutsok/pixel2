@@ -97,15 +97,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/projects", ensureAuthenticated, async (req, res) => {
     try {
+      console.log('Creating project with data:', JSON.stringify(req.body, null, 2));
+      
       // Преобразование строковых дат в объекты Date перед валидацией
       const formattedBody = {
         ...req.body,
         startDate: req.body.startDate ? new Date(req.body.startDate) : undefined,
-        endDate: req.body.endDate ? new Date(req.body.endDate) : undefined
+        endDate: req.body.endDate ? new Date(req.body.endDate) : undefined,
+        clientId: typeof req.body.clientId === 'string' ? parseInt(req.body.clientId) : req.body.clientId,
+        managerId: req.body.managerId ? (typeof req.body.managerId === 'string' ? parseInt(req.body.managerId) : req.body.managerId) : undefined
       };
       
+      console.log('Formatted project data:', JSON.stringify(formattedBody, null, 2));
+      
       const projectData = insertProjectSchema.parse(formattedBody);
+      console.log('Validated project data:', JSON.stringify(projectData, null, 2));
+      
       const project = await storage.createProject(projectData);
+      console.log('Created project:', JSON.stringify(project, null, 2));
       
       // Create activity for project creation
       await storage.createActivity({
@@ -121,10 +130,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.status(201).json(project);
     } catch (error) {
+      console.error('Error creating project:', error);
+      
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Invalid project data", errors: error.errors });
       }
-      res.status(500).json({ message: "Failed to create project" });
+      
+      res.status(500).json({ 
+        message: "Failed to create project", 
+        error: error instanceof Error ? error.message : String(error) 
+      });
     }
   });
 
@@ -1000,7 +1015,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }
 
   // Настройка multer для загрузки файлов
-  const storage = multer.diskStorage({
+  const multerStorage = multer.diskStorage({
     destination: (req, file, cb) => {
       cb(null, uploadsDir);
     },
@@ -1011,7 +1026,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  const upload = multer({ storage });
+  const upload = multer({ storage: multerStorage });
 
   // Загрузка файлов для проекта
   app.post('/api/project-files/upload', ensureAuthenticated, upload.array('files'), async (req, res) => {
