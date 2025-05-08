@@ -234,16 +234,26 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateProject(id: number, updateData: Partial<Project>): Promise<Project> {
-    const [project] = await db.update(projects)
-      .set(updateData)
-      .where(eq(projects.id, id))
-      .returning();
+    console.log(`updateProject: Updating project with ID ${id}`);
+    console.log(`updateProject: Update data:`, JSON.stringify(updateData, null, 2));
     
-    if (!project) {
-      throw new Error(`Project with ID ${id} not found`);
+    try {
+      const [project] = await db.update(projects)
+        .set(updateData)
+        .where(eq(projects.id, id))
+        .returning();
+      
+      if (!project) {
+        console.error(`updateProject: Project with ID ${id} not found after update`);
+        throw new Error(`Project with ID ${id} not found`);
+      }
+      
+      console.log(`updateProject: Project updated successfully:`, JSON.stringify(project, null, 2));
+      return project;
+    } catch (error) {
+      console.error(`updateProject: Error updating project:`, error);
+      throw error;
     }
-    
-    return project;
   }
 
   private async seedInitialData() {

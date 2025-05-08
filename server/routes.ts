@@ -150,15 +150,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/projects/:id", hasRole(["admin", "manager"]), async (req, res) => {
     try {
+      console.log("Received project update request for ID:", req.params.id);
+      console.log("Update data:", JSON.stringify(req.body, null, 2));
+      
       const projectId = parseInt(req.params.id);
+      if (isNaN(projectId)) {
+        console.log("Invalid project ID (not a number):", req.params.id);
+        return res.status(400).json({ message: "Invalid project ID" });
+      }
+      
+      console.log("Looking up project with ID:", projectId);
       const project = await storage.getProject(projectId);
       
       if (!project) {
+        console.log("Project not found with ID:", projectId);
         return res.status(404).json({ message: "Project not found" });
       }
       
+      console.log("Project found:", project.name);
+      
       // Managers can only update projects they manage
       if (req.user.role === "manager" && project.managerId !== req.user.id) {
+        console.log("Access denied: Manager trying to update project they don't manage");
         return res.status(403).json({ message: "Access denied" });
       }
       
@@ -169,9 +182,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         endDate: req.body.endDate ? new Date(req.body.endDate) : undefined
       };
       
+      console.log("Formatted update data:", JSON.stringify(formattedBody, null, 2));
+      
+      console.log("Calling storage.updateProject");
       const updatedProject = await storage.updateProject(projectId, formattedBody);
+      console.log("Project updated successfully:", updatedProject.name);
       
       // Create activity for project update
+      console.log("Creating activity record for project update");
       await storage.createActivity({
         userId: req.user.id,
         actionType: "project_updated",
@@ -183,12 +201,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         metadata: req.body,
       });
       
+      console.log("Sending updated project as response");
       res.json(updatedProject);
     } catch (error) {
+      console.error("Error updating project:", error);
       if (error instanceof z.ZodError) {
+        console.log("Validation error:", error.errors);
         return res.status(400).json({ message: "Invalid project data", errors: error.errors });
       }
-      res.status(500).json({ message: "Failed to update project" });
+      console.error("Server error during project update:", error);
+      res.status(500).json({ message: "Failed to update project", error: error.message });
     }
   });
 

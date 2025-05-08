@@ -122,10 +122,20 @@ export default function ProjectEditPage() {
   // Мутация для обновления проекта
   const updateProjectMutation = useMutation({
     mutationFn: async (data: ProjectFormValues) => {
-      const res = await apiRequest("PATCH", `/api/projects/${projectId}`, data);
-      return await res.json();
+      console.log("Updating project with ID:", projectId);
+      console.log("Form data:", JSON.stringify(data, null, 2));
+      try {
+        const res = await apiRequest("PATCH", `/api/projects/${projectId}`, data);
+        const result = await res.json();
+        console.log("Update successful, response:", JSON.stringify(result, null, 2));
+        return result;
+      } catch (error) {
+        console.error("Error in updateProjectMutation:", error);
+        throw error;
+      }
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log("Project update mutation succeeded:", data);
       queryClient.invalidateQueries({ queryKey: ["/api/projects"] });
       queryClient.invalidateQueries({ queryKey: ["/api/projects", projectId] });
       toast({
@@ -134,6 +144,7 @@ export default function ProjectEditPage() {
       });
     },
     onError: (error: Error) => {
+      console.error("Project update mutation failed:", error);
       toast({
         title: "Ошибка при обновлении проекта",
         description: error.message,
