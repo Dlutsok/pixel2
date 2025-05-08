@@ -421,96 +421,149 @@ export class DatabaseStorage implements IStorage {
 
   // Activity operations
   async getAllActivities(): Promise<Activity[]> {
-    return Array.from(this.activitiesData.values())
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    return await db.select()
+      .from(activities)
+      .orderBy(desc(activities.createdAt));
   }
 
   async getActivitiesByProject(projectId: number): Promise<Activity[]> {
-    return Array.from(this.activitiesData.values())
-      .filter((activity) => activity.projectId === projectId)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    return await db.select()
+      .from(activities)
+      .where(eq(activities.projectId, projectId))
+      .orderBy(desc(activities.createdAt));
   }
 
   async getActivitiesByProjects(projectIds: number[]): Promise<Activity[]> {
-    return Array.from(this.activitiesData.values())
-      .filter((activity) => activity.projectId && projectIds.includes(activity.projectId))
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    return await db.select()
+      .from(activities)
+      .where(inArray(activities.projectId, projectIds))
+      .orderBy(desc(activities.createdAt));
   }
 
   async createActivity(activityData: InsertActivity): Promise<Activity> {
-    const id = this.activityCounter++;
-    const activity: Activity = { ...activityData, id };
-    this.activitiesData.set(id, activity);
+    const [activity] = await db.insert(activities)
+      .values({
+        description: activityData.description,
+        userId: activityData.userId,
+        actionType: activityData.actionType,
+        resourceType: activityData.resourceType,
+        resourceId: activityData.resourceId,
+        projectId: activityData.projectId || null,
+        createdAt: activityData.createdAt || new Date(),
+        metadata: activityData.metadata || null
+      })
+      .returning();
+    
     return activity;
   }
 
   // Project File operations
   async getProjectFiles(projectId: number): Promise<ProjectFile[]> {
-    return Array.from(this.projectFilesData.values())
-      .filter((file) => file.projectId === projectId)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    return await db.select()
+      .from(projectFiles)
+      .where(eq(projectFiles.projectId, projectId))
+      .orderBy(desc(projectFiles.createdAt));
   }
 
   async createProjectFile(fileData: InsertProjectFile): Promise<ProjectFile> {
-    const id = this.fileCounter++;
-    const file: ProjectFile = { ...fileData, id };
-    this.projectFilesData.set(id, file);
+    const [file] = await db.insert(projectFiles)
+      .values({
+        name: fileData.name,
+        path: fileData.path,
+        type: fileData.type,
+        size: fileData.size,
+        projectId: fileData.projectId,
+        uploadedById: fileData.uploadedById,
+        createdAt: fileData.createdAt || new Date()
+      })
+      .returning();
+    
     return file;
   }
 
   // Finance Document operations
   async getAllFinanceDocuments(): Promise<FinanceDocument[]> {
-    return Array.from(this.financeDocumentsData.values())
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    return await db.select()
+      .from(financeDocuments)
+      .orderBy(desc(financeDocuments.createdAt));
   }
 
   async getFinanceDocumentsByClient(clientId: number): Promise<FinanceDocument[]> {
-    return Array.from(this.financeDocumentsData.values())
-      .filter((doc) => doc.clientId === clientId)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    return await db.select()
+      .from(financeDocuments)
+      .where(eq(financeDocuments.clientId, clientId))
+      .orderBy(desc(financeDocuments.createdAt));
   }
 
   async getFinanceDocumentsByProjects(projectIds: number[]): Promise<FinanceDocument[]> {
-    return Array.from(this.financeDocumentsData.values())
-      .filter((doc) => doc.projectId && projectIds.includes(doc.projectId))
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    return await db.select()
+      .from(financeDocuments)
+      .where(inArray(financeDocuments.projectId, projectIds))
+      .orderBy(desc(financeDocuments.createdAt));
   }
 
   async createFinanceDocument(documentData: InsertFinanceDocument): Promise<FinanceDocument> {
-    const id = this.documentCounter++;
-    const document: FinanceDocument = { ...documentData, id };
-    this.financeDocumentsData.set(id, document);
+    const [document] = await db.insert(financeDocuments)
+      .values({
+        name: documentData.name,
+        path: documentData.path,
+        type: documentData.type,
+        status: documentData.status,
+        clientId: documentData.clientId,
+        projectId: documentData.projectId || null,
+        dueDate: documentData.dueDate || null,
+        amount: documentData.amount || null,
+        createdAt: documentData.createdAt || new Date()
+      })
+      .returning();
+    
     return document;
   }
 
   // Support Ticket operations
   async getAllSupportTickets(): Promise<SupportTicket[]> {
-    return Array.from(this.supportTicketsData.values())
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    return await db.select()
+      .from(supportTickets)
+      .orderBy(desc(supportTickets.createdAt));
   }
 
   async getSupportTicketsByClient(clientId: number): Promise<SupportTicket[]> {
-    return Array.from(this.supportTicketsData.values())
-      .filter((ticket) => ticket.clientId === clientId)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    return await db.select()
+      .from(supportTickets)
+      .where(eq(supportTickets.clientId, clientId))
+      .orderBy(desc(supportTickets.createdAt));
   }
 
   async createSupportTicket(ticketData: InsertSupportTicket): Promise<SupportTicket> {
-    const id = this.ticketCounter++;
-    const ticket: SupportTicket = { ...ticketData, id };
-    this.supportTicketsData.set(id, ticket);
+    const [ticket] = await db.insert(supportTickets)
+      .values({
+        clientId: ticketData.clientId,
+        title: ticketData.title,
+        description: ticketData.description,
+        status: ticketData.status || 'open',
+        priority: ticketData.priority || 'medium',
+        projectId: ticketData.projectId || null,
+        assignedToId: ticketData.assignedToId || null,
+        createdAt: ticketData.createdAt || new Date(),
+        updatedAt: ticketData.updatedAt || null,
+        closedAt: ticketData.closedAt || null
+      })
+      .returning();
+    
     return ticket;
   }
 
   async updateSupportTicket(id: number, updateData: Partial<SupportTicket>): Promise<SupportTicket> {
-    const ticket = this.supportTicketsData.get(id);
+    const [ticket] = await db.update(supportTickets)
+      .set(updateData)
+      .where(eq(supportTickets.id, id))
+      .returning();
+    
     if (!ticket) {
       throw new Error(`Support ticket with ID ${id} not found`);
     }
     
-    const updatedTicket = { ...ticket, ...updateData };
-    this.supportTicketsData.set(id, updatedTicket);
-    return updatedTicket;
+    return ticket;
   }
 }
 
