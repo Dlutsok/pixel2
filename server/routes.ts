@@ -53,6 +53,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userRole = req.user.role;
       let projects;
       
+      console.log(`Fetching projects for user with role ${userRole} and id ${req.user.id}`);
+      
       if (userRole === "client") {
         projects = await storage.getProjectsByClientId(req.user.id);
       } else {
@@ -62,8 +64,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           : await storage.getProjectsByManagerId(req.user.id);
       }
       
+      console.log(`Projects retrieved: ${projects?.length || 0}`);
+      
       res.json(projects);
     } catch (error) {
+      console.error("Error fetching projects:", error);
       res.status(500).json({ message: "Failed to fetch projects" });
     }
   });
