@@ -44,7 +44,7 @@ export default function ProjectsPage() {
   });
   
   // Group projects by status for tabs
-  const activeProjects = filteredProjects?.filter(p => p.status === "in_progress") || [];
+  const activeProjects = filteredProjects?.filter(p => p.status === "in_progress" || p.status === "new") || [];
   const pausedProjects = filteredProjects?.filter(p => p.status === "paused") || [];
   const completedProjects = filteredProjects?.filter(p => p.status === "completed") || [];
   const archivedProjects = filteredProjects?.filter(p => p.status === "archived") || [];
@@ -88,6 +88,7 @@ export default function ProjectsPage() {
   
   const getStatusesOptions = () => {
     const statuses = [
+      { value: "new", label: "Новый" },
       { value: "in_progress", label: "В работе" },
       { value: "paused", label: "Приостановлен" },
       { value: "completed", label: "Завершен" },

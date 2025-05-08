@@ -52,7 +52,7 @@ export default function DashboardPage() {
   });
   
   // Get active projects
-  const activeProjects = projects?.filter(p => p.status === "in_progress") || [];
+  const activeProjects = projects?.filter(p => p.status === "in_progress" || p.status === "new") || [];
   
   // Get tasks in progress
   const tasksInProgress = tasks?.filter(t => t.status === "in_progress") || [];
