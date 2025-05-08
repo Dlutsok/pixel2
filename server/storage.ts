@@ -79,7 +79,7 @@ export interface IStorage {
   updateSupportTicket(id: number, ticket: Partial<SupportTicket>): Promise<SupportTicket>;
   
   // Session store
-  sessionStore: session.SessionStore;
+  sessionStore: any;
 }
 
 export class MemStorage implements IStorage {
@@ -94,7 +94,7 @@ export class MemStorage implements IStorage {
   private financeDocumentsData: Map<number, FinanceDocument>;
   private supportTicketsData: Map<number, SupportTicket>;
   
-  sessionStore: session.SessionStore;
+  sessionStore: any;
   
   private userCounter: number = 1;
   private projectCounter: number = 1;

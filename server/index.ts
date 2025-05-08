@@ -6,6 +6,20 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Set CORS headers directly
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  next();
+});
+
+// Set environment variable for session secret
+if (!process.env.SESSION_SECRET) {
+  process.env.SESSION_SECRET = "web-studio-portal-secret";
+}
+
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;

@@ -34,11 +34,13 @@ export function setupAuth(app: Express) {
     resave: true,
     saveUninitialized: true,
     store: storage.sessionStore,
+    proxy: true,
     cookie: {
       maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
       httpOnly: true,
-      secure: false, // set to true only in production
+      secure: false, // Set to false for all environments for testing
       sameSite: "lax",
+      path: "/"
     }
   };
 
