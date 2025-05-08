@@ -488,7 +488,7 @@ export default function ProjectEditPage() {
                                 variant={"outline"}
                                 className="pl-3 text-left font-normal"
                               >
-                                {field.value ? (
+                                {field.value && isValid(new Date(field.value)) ? (
                                   format(new Date(field.value), "d MMMM yyyy", { locale: ru })
                                 ) : (
                                   <span>Выберите дату</span>
@@ -558,7 +558,7 @@ export default function ProjectEditPage() {
                       <FormItem>
                         <FormLabel>Менеджер</FormLabel>
                         <Select
-                          onValueChange={(value) => field.onChange(parseInt(value))}
+                          onValueChange={(value) => field.onChange(value === "0" ? undefined : parseInt(value))}
                           defaultValue={field.value?.toString()}
                           value={field.value?.toString()}
                         >
@@ -568,7 +568,7 @@ export default function ProjectEditPage() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="">Не выбран</SelectItem>
+                            <SelectItem value="0">Не выбран</SelectItem>
                             {managers.map((manager) => (
                               <SelectItem key={manager.id} value={manager.id.toString()}>
                                 {manager.firstName} {manager.lastName}
