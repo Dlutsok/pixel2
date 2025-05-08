@@ -94,7 +94,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/projects", ensureAuthenticated, async (req, res) => {
     try {
-      const projectData = insertProjectSchema.parse(req.body);
+      // Преобразование строковых дат в объекты Date перед валидацией
+      const formattedBody = {
+        ...req.body,
+        startDate: req.body.startDate ? new Date(req.body.startDate) : undefined,
+        endDate: req.body.endDate ? new Date(req.body.endDate) : undefined
+      };
+      
+      const projectData = insertProjectSchema.parse(formattedBody);
       const project = await storage.createProject(projectData);
       
       // Create activity for project creation
@@ -132,7 +139,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Access denied" });
       }
       
-      const updatedProject = await storage.updateProject(projectId, req.body);
+      // Преобразование строковых дат в объекты Date
+      const formattedBody = {
+        ...req.body,
+        startDate: req.body.startDate ? new Date(req.body.startDate) : undefined,
+        endDate: req.body.endDate ? new Date(req.body.endDate) : undefined
+      };
+      
+      const updatedProject = await storage.updateProject(projectId, formattedBody);
       
       // Create activity for project update
       await storage.createActivity({

@@ -41,8 +41,8 @@ const projectFormSchema = insertProjectSchema.extend({
   domain: z.string().optional(),
   status: z.enum(["new", "in_progress", "paused", "completed", "archived"]).default("new"),
   budget: z.coerce.number().min(0).optional(),
-  startDate: z.string().min(1, "Дата начала обязательна"),
-  endDate: z.string().optional(),
+  startDate: z.date().or(z.string().min(1, "Дата начала обязательна").transform((val) => new Date(val))),
+  endDate: z.date().optional().or(z.string().optional().transform((val) => val ? new Date(val) : undefined)),
 });
 
 type ProjectFormValues = z.infer<typeof projectFormSchema>;
@@ -55,14 +55,8 @@ export default function ProjectNewPage() {
   // Create project mutation
   const createProjectMutation = useMutation({
     mutationFn: async (data: ProjectFormValues) => {
-      // Важно: преобразуем строковые даты в объекты Date для соответствия схеме
-      const formattedData = {
-        ...data,
-        startDate: data.startDate ? new Date(data.startDate) : undefined,
-        endDate: data.endDate && data.endDate.trim() !== "" ? new Date(data.endDate) : undefined,
-      };
-      
-      const res = await apiRequest("POST", "/api/projects", formattedData);
+      // Zod уже преобразовал даты в объекты Date благодаря трансформации в схеме
+      const res = await apiRequest("POST", "/api/projects", data);
       return res.json();
     },
     onSuccess: (data) => {
@@ -100,7 +94,7 @@ export default function ProjectNewPage() {
   });
   
   function onSubmit(values: ProjectFormValues) {
-    // Преобразование дат происходит непосредственно в mutationFn
+    // Zod уже преобразовал даты в объекты Date благодаря трансформации в схеме
     createProjectMutation.mutate(values);
   }
   
