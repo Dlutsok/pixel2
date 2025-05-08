@@ -1061,6 +1061,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/users/:id/password", ensureAuthenticated, hasRole(["admin"]), async (req, res) => {
     try {
       const userId = parseInt(req.params.id);
+      
+      // Проверка на валидный числовой ID
+      if (isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+      
       const { password } = req.body;
       
       if (!password || password.length < 6) {
@@ -1090,6 +1096,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/users/:id", ensureAuthenticated, hasRole(["admin"]), async (req, res) => {
     try {
       const userId = parseInt(req.params.id);
+      
+      // Проверка на валидный числовой ID
+      if (isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
       
       // Проверяем существование пользователя
       const existingUser = await storage.getUser(userId);
@@ -1216,7 +1227,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           size: file.size,
           type: file.mimetype,
           uploadedById: userId,
-          uploadedAt: new Date(),
+          createdAt: new Date(), // изменено с uploadedAt на createdAt
         };
 
         const savedFile = await storage.createProjectFile(fileData);
@@ -1225,7 +1236,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Создаем активность для загрузки файлов
       await storage.createActivity({
-        userId: req.user.id,
+        userId, // используем переменную userId, которая уже проверена выше
         actionType: "files_uploaded",
         resourceType: "project",
         resourceId: projectId,
