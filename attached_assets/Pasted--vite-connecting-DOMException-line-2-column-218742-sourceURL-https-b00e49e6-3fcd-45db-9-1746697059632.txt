@@ -1,0 +1,33 @@
+[vite] connecting...
+DOMException {line: 2, column: 218742, sourceURL: "https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/__replco/static/devto…"}
+
+Warning: validateDOMNesting(...): <a> cannot appear as a descendant of &lt;a&gt;.
+a
+a
+@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js:337:27
+nav
+aside
+Sidebar@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/src/components/layout/sidebar.tsx:36:33
+div
+Layout@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/src/components/layout/layout.tsx:23:5
+DashboardPage@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/src/pages/dashboard-page.tsx:37:27
+Route@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js:323:14
+ProtectedRoute@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/src/lib/protected-route.tsx:25:5
+Switch@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js:380:27
+Router
+TooltipProviderProvider@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OXZDJRWN.js:38:13
+TooltipProvider@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js:65:43
+AuthProvider@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/src/hooks/use-auth.tsx:32:5
+V@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/next-themes.js:44:26
+J@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/next-themes.js:42:28
+QueryClientProvider@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js:2805:9
+App
+t@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12639
+value@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32772
+@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34410
+`DialogContent` requires a `DialogTitle` for the component to be accessible for screen reader users.
+
+If you want to hide the `DialogTitle`, you can wrap it with our VisuallyHidden component.
+
+For more information, see https://radix-ui.com/primitives/docs/components/dialog
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
