@@ -185,9 +185,12 @@ export class MemStorage implements IStorage {
     }
     
     const user: User = { 
-      ...userData, 
-      password,
       id,
+      email: userData.email,
+      password,
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      role: userData.role || 'client',
       avatarInitials 
     };
     
@@ -218,7 +221,19 @@ export class MemStorage implements IStorage {
 
   async createProject(projectData: InsertProject): Promise<Project> {
     const id = this.projectCounter++;
-    const project: Project = { ...projectData, id };
+    const project: Project = { 
+      id,
+      name: projectData.name,
+      status: projectData.status || 'pending',
+      progress: projectData.progress || 0,
+      description: projectData.description || null,
+      domain: projectData.domain || null,
+      startDate: projectData.startDate,
+      endDate: projectData.endDate || null,
+      currentPhase: projectData.currentPhase || null,
+      clientId: projectData.clientId,
+      managerId: projectData.managerId || null
+    };
     this.projectsData.set(id, project);
     return project;
   }
