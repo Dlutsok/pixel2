@@ -1124,10 +1124,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // GET /api/users/clients - получить список клиентов
-  app.get("/api/users/clients", hasRole(["admin", "manager"]), async (req, res) => {
+  app.get("/api/users/clients", ensureAuthenticated, async (req, res) => {
     try {
+      // Проверяем роль пользователя
+      const userRole = req.user?.role;
+      console.log(`Fetching clients list. User role: ${userRole}`);
+      
+      if (userRole !== 'admin' && userRole !== 'manager') {
+        return res.status(403).json({ message: "Forbidden: Only admins and managers can view clients" });
+      }
+      
       // Получаем список пользователей с ролью client
       const clients = await storage.getUsersByRole("client");
+      console.log(`Found ${clients.length} clients`);
       res.json(clients);
     } catch (error) {
       console.error("Error fetching clients:", error);
@@ -1136,10 +1145,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // GET /api/users/managers - получить список менеджеров
-  app.get("/api/users/managers", hasRole(["admin"]), async (req, res) => {
+  app.get("/api/users/managers", ensureAuthenticated, async (req, res) => {
     try {
+      // Проверяем роль пользователя
+      const userRole = req.user?.role;
+      console.log(`Fetching managers list. User role: ${userRole}`);
+      
+      if (userRole !== 'admin') {
+        return res.status(403).json({ message: "Forbidden: Only admins can view managers" });
+      }
+      
       // Получаем список пользователей с ролью manager
       const managers = await storage.getUsersByRole("manager");
+      console.log(`Found ${managers.length} managers`);
       res.json(managers);
     } catch (error) {
       console.error("Error fetching managers:", error);

@@ -56,16 +56,20 @@ export default function ProjectNewPage() {
     queryKey: ["/api/users/clients"],
     queryFn: async () => {
       if (user?.role !== "admin" && user?.role !== "manager") return [];
+      
+      console.log("Fetching clients, user role:", user?.role);
       try {
-        const res = await fetch("/api/users/clients");
-        if (!res.ok) {
-          const errorData = await res.json();
-          console.error("Failed to fetch clients:", errorData);
-          return [];
-        }
-        return await res.json();
+        const res = await apiRequest("GET", "/api/users/clients");
+        const data = await res.json();
+        console.log("Clients data received:", data);
+        return data;
       } catch (error) {
         console.error("Error fetching clients:", error);
+        toast({
+          title: "Ошибка загрузки клиентов",
+          description: error instanceof Error ? error.message : "Не удалось загрузить список клиентов",
+          variant: "destructive",
+        });
         return [];
       }
     },
@@ -77,16 +81,20 @@ export default function ProjectNewPage() {
     queryKey: ["/api/users/managers"],
     queryFn: async () => {
       if (user?.role !== "admin") return [];
+      
+      console.log("Fetching managers, user role:", user?.role);
       try {
-        const res = await fetch("/api/users/managers");
-        if (!res.ok) {
-          const errorData = await res.json();
-          console.error("Failed to fetch managers:", errorData);
-          return [];
-        }
-        return await res.json();
+        const res = await apiRequest("GET", "/api/users/managers");
+        const data = await res.json();
+        console.log("Managers data received:", data);
+        return data;
       } catch (error) {
         console.error("Error fetching managers:", error);
+        toast({
+          title: "Ошибка загрузки менеджеров",
+          description: error instanceof Error ? error.message : "Не удалось загрузить список менеджеров",
+          variant: "destructive",
+        });
         return [];
       }
     },
