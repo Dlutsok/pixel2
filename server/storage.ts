@@ -231,94 +231,9 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  // User operations
-  async getUser(id: number): Promise<User | undefined> {
-    return this.usersData.get(id);
-  }
 
-  async getUserByEmail(email: string): Promise<User | undefined> {
-    return Array.from(this.usersData.values()).find(
-      (user) => user.email.toLowerCase() === email.toLowerCase()
-    );
-  }
 
-  async createUser(userData: InsertUser & { avatarInitials?: string }): Promise<User> {
-    const id = this.userCounter++;
-    const avatarInitials = userData.avatarInitials || 
-      `${userData.firstName.charAt(0)}${userData.lastName.charAt(0)}`;
-    
-    // Hash password if needed
-    let password = userData.password;
-    if (!password.includes('.')) { // Simple check if the password is already hashed
-      const salt = randomBytes(16).toString("hex");
-      const buf = (await scryptAsync(password, salt, 64)) as Buffer;
-      password = `${buf.toString("hex")}.${salt}`;
-    }
-    
-    const user: User = { 
-      id,
-      email: userData.email,
-      password,
-      firstName: userData.firstName,
-      lastName: userData.lastName,
-      role: userData.role || 'client',
-      avatarInitials 
-    };
-    
-    this.usersData.set(id, user);
-    return user;
-  }
 
-  // Project operations
-  async getAllProjects(): Promise<Project[]> {
-    return Array.from(this.projectsData.values());
-  }
-
-  async getProject(id: number): Promise<Project | undefined> {
-    return this.projectsData.get(id);
-  }
-
-  async getProjectsByClientId(clientId: number): Promise<Project[]> {
-    return Array.from(this.projectsData.values()).filter(
-      (project) => project.clientId === clientId
-    );
-  }
-
-  async getProjectsByManagerId(managerId: number): Promise<Project[]> {
-    return Array.from(this.projectsData.values()).filter(
-      (project) => project.managerId === managerId
-    );
-  }
-
-  async createProject(projectData: InsertProject): Promise<Project> {
-    const id = this.projectCounter++;
-    const project: Project = { 
-      id,
-      name: projectData.name,
-      status: projectData.status || 'pending',
-      progress: projectData.progress || 0,
-      description: projectData.description || null,
-      domain: projectData.domain || null,
-      startDate: projectData.startDate,
-      endDate: projectData.endDate || null,
-      currentPhase: projectData.currentPhase || null,
-      clientId: projectData.clientId,
-      managerId: projectData.managerId || null
-    };
-    this.projectsData.set(id, project);
-    return project;
-  }
-
-  async updateProject(id: number, updateData: Partial<Project>): Promise<Project> {
-    const project = this.projectsData.get(id);
-    if (!project) {
-      throw new Error(`Project with ID ${id} not found`);
-    }
-    
-    const updatedProject = { ...project, ...updateData };
-    this.projectsData.set(id, updatedProject);
-    return updatedProject;
-  }
 
   // Project Phase operations
   async getProjectPhases(projectId: number): Promise<ProjectPhase[]> {
@@ -414,54 +329,94 @@ export class DatabaseStorage implements IStorage {
 
   // Task Comment operations
   async getTaskComments(taskId: number): Promise<TaskComment[]> {
-    return Array.from(this.taskCommentsData.values())
-      .filter((comment) => comment.taskId === taskId)
-      .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    return await db.select()
+      .from(taskComments)
+      .where(eq(taskComments.taskId, taskId))
+      .orderBy(asc(taskComments.createdAt));
   }
 
   async createTaskComment(commentData: InsertTaskComment): Promise<TaskComment> {
-    const id = this.commentCounter++;
-    const comment: TaskComment = { ...commentData, id };
-    this.taskCommentsData.set(id, comment);
+    const [comment] = await db.insert(taskComments)
+      .values({
+        content: commentData.content,
+        taskId: commentData.taskId,
+        userId: commentData.userId,
+        createdAt: commentData.createdAt || new Date(),
+        attachments: commentData.attachments || null
+      })
+      .returning();
+    
     return comment;
   }
 
   // Message operations
   async getMessagesByUser(userId: number, projectId?: number): Promise<Message[]> {
-    return Array.from(this.messagesData.values())
-      .filter((message) => 
-        (message.senderId === userId || message.receiverId === userId) &&
-        (projectId ? message.projectId === projectId : true)
-      )
-      .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    const query = db.select()
+      .from(messages)
+      .where(
+        or(
+          eq(messages.senderId, userId),
+          eq(messages.receiverId, userId)
+        )
+      );
+    
+    if (projectId) {
+      query.where(eq(messages.projectId, projectId));
+    }
+    
+    return await query.orderBy(asc(messages.createdAt));
   }
 
   async getMessagesBetweenUsers(userId1: number, userId2: number, projectId?: number): Promise<Message[]> {
-    return Array.from(this.messagesData.values())
-      .filter((message) => 
-        ((message.senderId === userId1 && message.receiverId === userId2) ||
-        (message.senderId === userId2 && message.receiverId === userId1)) &&
-        (projectId ? message.projectId === projectId : true)
-      )
-      .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    const query = db.select()
+      .from(messages)
+      .where(
+        or(
+          and(
+            eq(messages.senderId, userId1),
+            eq(messages.receiverId, userId2)
+          ),
+          and(
+            eq(messages.senderId, userId2),
+            eq(messages.receiverId, userId1)
+          )
+        )
+      );
+    
+    if (projectId) {
+      query.where(eq(messages.projectId, projectId));
+    }
+    
+    return await query.orderBy(asc(messages.createdAt));
   }
 
   async createMessage(messageData: InsertMessage): Promise<Message> {
-    const id = this.messageCounter++;
-    const message: Message = { ...messageData, id };
-    this.messagesData.set(id, message);
+    const [message] = await db.insert(messages)
+      .values({
+        content: messageData.content,
+        senderId: messageData.senderId,
+        receiverId: messageData.receiverId,
+        projectId: messageData.projectId || null,
+        createdAt: messageData.createdAt || new Date(),
+        attachments: messageData.attachments || null,
+        isRead: messageData.isRead || false
+      })
+      .returning();
+    
     return message;
   }
 
   async markMessageAsRead(id: number): Promise<Message> {
-    const message = this.messagesData.get(id);
+    const [message] = await db.update(messages)
+      .set({ isRead: true })
+      .where(eq(messages.id, id))
+      .returning();
+    
     if (!message) {
       throw new Error(`Message with ID ${id} not found`);
     }
     
-    const updatedMessage = { ...message, isRead: true };
-    this.messagesData.set(id, updatedMessage);
-    return updatedMessage;
+    return message;
   }
 
   // Activity operations
