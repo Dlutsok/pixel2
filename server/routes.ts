@@ -16,7 +16,9 @@ import { z } from "zod";
 
 // Helper to ensure user is authenticated
 function ensureAuthenticated(req: any, res: any, next: any) {
-  console.log("Checking auth for route:", req.path, "authenticated:", req.isAuthenticated());
+  console.log("Checking auth for route:", req.path, "authenticated:", req.isAuthenticated(), "Session ID:", req.sessionID);
+  console.log("Cookie header:", req.headers.cookie);
+  
   if (req.isAuthenticated()) {
     console.log("User authenticated:", req.user?.email);
     return next();
