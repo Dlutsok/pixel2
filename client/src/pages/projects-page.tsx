@@ -22,9 +22,15 @@ export default function ProjectsPage() {
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
   
   // Fetch projects
-  const { data: projects, isLoading } = useQuery({
+  const { data: projects, isLoading, error } = useQuery({
     queryKey: ["/api/projects"],
     enabled: !!user,
+    onSuccess: (data) => {
+      console.log("Projects loaded successfully:", data);
+    },
+    onError: (err) => {
+      console.error("Error loading projects:", err);
+    },
   });
   
   // Filter projects based on search query and status

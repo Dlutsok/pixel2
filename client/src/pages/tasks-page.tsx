@@ -92,9 +92,15 @@ export default function TasksPage() {
   });
   
   // Fetch projects for the select dropdown
-  const { data: projects, isLoading: isLoadingProjects } = useQuery({
+  const { data: projects, isLoading: isLoadingProjects, error: projectsError } = useQuery({
     queryKey: ["/api/projects"],
     enabled: !!user,
+    onSuccess: (data) => {
+      console.log("Tasks page: Projects loaded successfully:", data);
+    },
+    onError: (err) => {
+      console.error("Tasks page: Error loading projects:", err);
+    },
   });
   
   // Create task mutation

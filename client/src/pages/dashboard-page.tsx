@@ -22,9 +22,15 @@ export default function DashboardPage() {
   const { user } = useAuth();
   
   // Fetch projects
-  const { data: projects, isLoading: isLoadingProjects } = useQuery({
+  const { data: projects, isLoading: isLoadingProjects, error: projectsError } = useQuery({
     queryKey: ["/api/projects"],
     enabled: !!user,
+    onSuccess: (data) => {
+      console.log("Dashboard: Projects loaded successfully:", data);
+    },
+    onError: (err) => {
+      console.error("Dashboard: Error loading projects:", err);
+    },
   });
   
   // Fetch tasks
