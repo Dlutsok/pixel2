@@ -12,11 +12,13 @@ import NotFound from "@/pages/not-found";
 import AuthPage from "@/pages/auth-page";
 import ProjectsPage from "@/pages/projects-page";
 import ProjectDetailPage from "@/pages/project-detail-page";
+import ProjectNewPage from "@/pages/project-new-page";
 import TasksPage from "@/pages/tasks-page";
 import TaskDetailPage from "@/pages/task-detail-page";
 import ChatPage from "@/pages/chat-page";
 import FinancePage from "@/pages/finance-page";
 import SupportPage from "@/pages/support-page";
+import ProfilePage from "@/pages/profile-page";
 
 // Components
 import DashboardRouter from "@/components/dashboard-router";
@@ -27,12 +29,14 @@ function Router() {
       <Route path="/auth" component={AuthPage} />
       <ProtectedRoute path="/" component={DashboardRouter} />
       <ProtectedRoute path="/projects" component={ProjectsPage} />
+      <ProtectedRoute path="/projects/new" component={ProjectNewPage} />
       <ProtectedRoute path="/projects/:id" component={ProjectDetailPage} />
       <ProtectedRoute path="/tasks" component={TasksPage} />
       <ProtectedRoute path="/tasks/:id" component={TaskDetailPage} />
       <ProtectedRoute path="/chat" component={ChatPage} />
       <ProtectedRoute path="/finance" component={FinancePage} />
       <ProtectedRoute path="/support" component={SupportPage} />
+      <ProtectedRoute path="/profile" component={ProfilePage} />
       <Route component={NotFound} />
     </Switch>
   );
