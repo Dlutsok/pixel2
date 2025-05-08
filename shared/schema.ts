@@ -11,6 +11,12 @@ export const users = pgTable("users", {
   lastName: text("last_name").notNull(),
   role: text("role").notNull().default("client"), // client, manager, admin
   avatarInitials: text("avatar_initials"),
+  company: text("company"),
+  position: text("position"),
+  phone: text("phone"),
+  bio: text("bio"),
+  createdAt: timestamp("created_at").defaultNow(),
+  avatarUrl: text("avatar_url"),
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
@@ -19,6 +25,10 @@ export const insertUserSchema = createInsertSchema(users).pick({
   firstName: true,
   lastName: true,
   role: true,
+  company: true,
+  position: true,
+  phone: true,
+  bio: true,
 });
 
 // Project model

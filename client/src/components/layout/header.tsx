@@ -78,14 +78,18 @@ export default function Header() {
               <div className="text-xs text-neutral-500">{user.email}</div>
             </div>
             
-            <DropdownMenuItem>
-              <User className="h-4 w-4 mr-2" />
-              <span>Мой профиль</span>
+            <DropdownMenuItem onClick={() => setIsDropdownOpen(false)}>
+              <a href="/profile" className="flex items-center w-full">
+                <User className="h-4 w-4 mr-2" />
+                <span>Мой профиль</span>
+              </a>
             </DropdownMenuItem>
             
-            <DropdownMenuItem>
-              <Settings className="h-4 w-4 mr-2" />
-              <span>Настройки</span>
+            <DropdownMenuItem onClick={() => setIsDropdownOpen(false)}>
+              <a href="/profile?tab=security" className="flex items-center w-full">
+                <Settings className="h-4 w-4 mr-2" />
+                <span>Безопасность</span>
+              </a>
             </DropdownMenuItem>
             
             <DropdownMenuSeparator />

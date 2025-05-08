@@ -811,21 +811,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User not found" });
       }
       
+      // Create update data with type safety
+      const updateData: Record<string, any> = {
+        firstName: req.body.firstName || user.firstName,
+        lastName: req.body.lastName || user.lastName,
+        email: req.body.email || user.email,
+        // Generate avatar initials from first and last name
+        avatarInitials: req.body.firstName && req.body.lastName 
+          ? `${req.body.firstName[0]}${req.body.lastName[0]}`.toUpperCase()
+          : user.avatarInitials
+      };
+      
+      // Add optional fields if provided
+      if (req.body.company !== undefined) updateData.company = req.body.company;
+      if (req.body.position !== undefined) updateData.position = req.body.position;
+      if (req.body.phone !== undefined) updateData.phone = req.body.phone;
+      if (req.body.bio !== undefined) updateData.bio = req.body.bio;
+      
       // Update the user
       const updatedUser = await db.update(users)
-        .set({
-          firstName: req.body.firstName || user.firstName,
-          lastName: req.body.lastName || user.lastName,
-          email: req.body.email || user.email,
-          company: req.body.company,
-          position: req.body.position,
-          phone: req.body.phone,
-          bio: req.body.bio,
-          // Generate avatar initials from first and last name
-          avatarInitials: req.body.firstName && req.body.lastName 
-            ? `${req.body.firstName[0]}${req.body.lastName[0]}`.toUpperCase()
-            : user.avatarInitials
-        })
+        .set(updateData)
         .where(eq(users.id, userId))
         .returning();
       
