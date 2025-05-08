@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, hashPassword, comparePasswords } from "./auth";
 import { db } from "./db";
-import { eq, sql } from "drizzle-orm";
+import { eq, ne, sql } from "drizzle-orm";
 import {
   insertProjectSchema,
   insertTaskSchema,
@@ -921,6 +921,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error changing password:", error);
       res.status(500).json({ message: "Failed to change password" });
+    }
+  });
+
+  // API для получения списка пользователей системы для выбора в формах
+  // GET /api/users/clients - получить список клиентов
+  app.get("/api/users/clients", hasRole(["admin", "manager"]), async (req, res) => {
+    try {
+      // Получаем список пользователей с ролью client
+      const clients = await db.select({
+        id: users.id,
+        email: users.email,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        company: users.company,
+        avatarInitials: users.avatarInitials
+      })
+      .from(users)
+      .where(eq(users.role, "client"));
+      
+      res.json(clients);
+    } catch (error) {
+      console.error("Error fetching clients:", error);
+      res.status(500).json({ message: "Failed to fetch clients" });
+    }
+  });
+  
+  // GET /api/users/managers - получить список менеджеров
+  app.get("/api/users/managers", hasRole(["admin"]), async (req, res) => {
+    try {
+      // Получаем список пользователей с ролью manager
+      const managers = await db.select({
+        id: users.id,
+        email: users.email,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        company: users.company,
+        avatarInitials: users.avatarInitials
+      })
+      .from(users)
+      .where(eq(users.role, "manager"));
+      
+      res.json(managers);
+    } catch (error) {
+      console.error("Error fetching managers:", error);
+      res.status(500).json({ message: "Failed to fetch managers" });
+    }
+  });
+  
+  // GET /api/users/contacts - получить список всех пользователей для контактов
+  app.get("/api/users/contacts", ensureAuthenticated, async (req, res) => {
+    try {
+      // Получаем список всех пользователей (кроме текущего)
+      const contacts = await db.select({
+        id: users.id,
+        name: sql`concat(${users.firstName}, ' ', ${users.lastName})`,
+        email: users.email,
+        role: users.role,
+        avatarInitials: users.avatarInitials
+      })
+      .from(users)
+      .where(ne(users.id, req.user.id));
+      
+      res.json(contacts);
+    } catch (error) {
+      console.error("Error fetching contacts:", error);
+      res.status(500).json({ message: "Failed to fetch contacts" });
     }
   });
 
