@@ -66,6 +66,10 @@ export default function ProfilePage() {
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   
+  // Get the tab parameter from URL
+  const [, params] = window.location.search.substring(1).split('=');
+  const defaultTab = params === 'security' ? 'security' : 'profile';
+  
   // Profile update mutation
   const updateProfileMutation = useMutation({
     mutationFn: async (data: ProfileFormValues) => {
@@ -162,7 +166,7 @@ export default function ProfilePage() {
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="order-2 lg:order-1 lg:col-span-2">
-            <Tabs defaultValue="profile" className="space-y-6">
+            <Tabs defaultValue={defaultTab} className="space-y-6">
               <TabsList>
                 <TabsTrigger value="profile">Профиль</TabsTrigger>
                 <TabsTrigger value="security">Безопасность</TabsTrigger>
