@@ -31,13 +31,13 @@ async function comparePasswords(supplied: string, stored: string) {
 export function setupAuth(app: Express) {
   const sessionSettings: session.SessionOptions = {
     secret: process.env.SESSION_SECRET || "web-studio-portal-secret",
-    resave: false,
-    saveUninitialized: false,
+    resave: true,
+    saveUninitialized: true,
     store: storage.sessionStore,
     cookie: {
       maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
       httpOnly: true,
-      secure: app.get("env") === "production",
+      secure: false, // set to true only in production
       sameSite: "lax",
     }
   };
@@ -117,13 +117,23 @@ export function setupAuth(app: Express) {
   });
 
   app.post("/api/login", (req, res, next) => {
-    passport.authenticate("local", (err, user, info) => {
-      if (err) return next(err);
+    console.log("Login attempt with:", req.body.email);
+    passport.authenticate("local", (err: Error, user: any, info: any) => {
+      if (err) {
+        console.error("Login error:", err);
+        return next(err);
+      }
       if (!user) {
+        console.log("Login failed: Invalid credentials");
         return res.status(401).json({ message: "Invalid email or password" });
       }
+      
       req.login(user, (err) => {
-        if (err) return next(err);
+        if (err) {
+          console.error("Session login error:", err);
+          return next(err);
+        }
+        console.log("Login successful for:", user.email, "Session ID:", req.sessionID);
         return res.json(user);
       });
     })(req, res, next);
@@ -137,7 +147,12 @@ export function setupAuth(app: Express) {
   });
 
   app.get("/api/user", (req, res) => {
-    if (!req.isAuthenticated()) return res.sendStatus(401);
+    console.log("Getting user info, authenticated:", req.isAuthenticated(), "Session ID:", req.sessionID);
+    if (!req.isAuthenticated()) {
+      console.log("User not authenticated");
+      return res.sendStatus(401);
+    }
+    console.log("Returning user data for:", req.user.email);
     res.json(req.user);
   });
 
