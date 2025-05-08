@@ -389,7 +389,7 @@ export default function ProfilePage() {
                             <FormItem>
                               <FormLabel>Текущий пароль</FormLabel>
                               <FormControl>
-                                <Input type="password" {...field} />
+                                <Input type="password" {...field} autoComplete="current-password" />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -403,7 +403,7 @@ export default function ProfilePage() {
                             <FormItem>
                               <FormLabel>Новый пароль</FormLabel>
                               <FormControl>
-                                <Input type="password" {...field} />
+                                <Input type="password" {...field} autoComplete="current-password" />
                               </FormControl>
                               <FormDescription>
                                 Минимум 6 символов, используйте комбинацию букв, цифр и специальных символов
@@ -420,7 +420,7 @@ export default function ProfilePage() {
                             <FormItem>
                               <FormLabel>Подтверждение пароля</FormLabel>
                               <FormControl>
-                                <Input type="password" {...field} />
+                                <Input type="password" {...field} autoComplete="current-password" />
                               </FormControl>
                               <FormMessage />
                             </FormItem>

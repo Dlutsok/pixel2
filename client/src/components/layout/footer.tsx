@@ -10,15 +10,9 @@ export default function Footer() {
           &copy; {currentYear} Web Studio. Все права защищены.
         </div>
         <div className="flex space-x-4 mt-2 md:mt-0">
-          <Link href="/support">
-            <a className="text-sm text-neutral-500 hover:text-primary transition">Поддержка</a>
-          </Link>
-          <Link href="/support/knowledge">
-            <a className="text-sm text-neutral-500 hover:text-primary transition">База знаний</a>
-          </Link>
-          <Link href="/terms">
-            <a className="text-sm text-neutral-500 hover:text-primary transition">Условия использования</a>
-          </Link>
+          <a href="/support" className="text-sm text-neutral-500 hover:text-primary transition">Поддержка</a>
+          <a href="/support/knowledge" className="text-sm text-neutral-500 hover:text-primary transition">База знаний</a>
+          <a href="/terms" className="text-sm text-neutral-500 hover:text-primary transition">Условия использования</a>
         </div>
       </div>
     </footer>

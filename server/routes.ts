@@ -50,6 +50,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Projects routes
   app.get("/api/projects", ensureAuthenticated, async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized: No user in session" });
+      }
       const userRole = req.user.role;
       let projects;
       
@@ -67,14 +70,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`Projects retrieved: ${projects?.length || 0}`);
       
       res.json(projects);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching projects:", error);
-      res.status(500).json({ message: "Failed to fetch projects" });
+      res.status(500).json({ message: "Failed to fetch projects", error: error.message });
     }
   });
 
   app.get("/api/projects/:id", ensureAuthenticated, async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized: No user in session" });
+      }
       const projectId = parseInt(req.params.id);
       const project = await storage.getProject(projectId);
       
@@ -95,13 +101,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       res.json(project);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch project" });
+    } catch (error: any) {
+      res.status(500).json({ message: "Failed to fetch project", error: error.message });
     }
   });
 
   app.post("/api/projects", ensureAuthenticated, async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized: No user in session" });
+      }
       console.log('Creating project with data:', JSON.stringify(req.body, null, 2));
       
       // Преобразование строковых дат в объекты Date перед валидацией
@@ -134,7 +143,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       res.status(201).json(project);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating project:', error);
       
       if (error instanceof z.ZodError) {
@@ -150,6 +159,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/projects/:id", hasRole(["admin", "manager"]), async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized: No user in session" });
+      }
       console.log("Received project update request for ID:", req.params.id);
       console.log("Update data:", JSON.stringify(req.body, null, 2));
       
@@ -203,7 +215,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log("Sending updated project as response");
       res.json(updatedProject);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating project:", error);
       if (error instanceof z.ZodError) {
         console.log("Validation error:", error.errors);
@@ -217,6 +229,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Task routes
   app.get("/api/tasks", ensureAuthenticated, async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized: No user in session" });
+      }
       const userRole = req.user.role;
       const userId = req.user.id;
       let tasks;
@@ -258,13 +273,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       res.json(tasks);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch tasks" });
+    } catch (error: any) {
+      res.status(500).json({ message: "Failed to fetch tasks", error: error.message });
     }
   });
 
   app.get("/api/tasks/:id", ensureAuthenticated, async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized: No user in session" });
+      }
       const taskId = parseInt(req.params.id);
       const task = await storage.getTask(taskId);
       
@@ -290,13 +308,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       res.json(task);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch task" });
+    } catch (error: any) {
+      res.status(500).json({ message: "Failed to fetch task", error: error.message });
     }
   });
 
   app.post("/api/tasks", ensureAuthenticated, async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized: No user in session" });
+      }
       const taskData = insertTaskSchema.parse({
         ...req.body,
         createdById: req.user.id,
@@ -335,16 +356,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       res.status(201).json(task);
-    } catch (error) {
+    } catch (error: any) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Invalid task data", errors: error.errors });
       }
-      res.status(500).json({ message: "Failed to create task" });
+      res.status(500).json({ message: "Failed to create task", error: error.message });
     }
   });
 
   app.patch("/api/tasks/:id", ensureAuthenticated, async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized: No user in session" });
+      }
       const taskId = parseInt(req.params.id);
       const task = await storage.getTask(taskId);
       
@@ -384,17 +408,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       res.json(updatedTask);
-    } catch (error) {
+    } catch (error: any) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Invalid task data", errors: error.errors });
       }
-      res.status(500).json({ message: "Failed to update task" });
+      res.status(500).json({ message: "Failed to update task", error: error.message });
     }
   });
 
   // Task Comments routes
   app.get("/api/tasks/:taskId/comments", ensureAuthenticated, async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized: No user in session" });
+      }
       const taskId = parseInt(req.params.taskId);
       const task = await storage.getTask(taskId);
       
@@ -421,13 +448,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const comments = await storage.getTaskComments(taskId);
       res.json(comments);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch task comments" });
+    } catch (error: any) {
+      res.status(500).json({ message: "Failed to fetch task comments", error: error.message });
     }
   });
 
   app.post("/api/tasks/:taskId/comments", ensureAuthenticated, async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized: No user in session" });
+      }
       const taskId = parseInt(req.params.taskId);
       const task = await storage.getTask(taskId);
       
@@ -479,17 +509,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       res.status(201).json(comment);
-    } catch (error) {
+    } catch (error: any) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Invalid comment data", errors: error.errors });
       }
-      res.status(500).json({ message: "Failed to create comment" });
+      res.status(500).json({ message: "Failed to create comment", error: error.message });
     }
   });
 
   // Messages routes
   app.get("/api/messages", ensureAuthenticated, async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized: No user in session" });
+      }
       const userId = req.user.id;
       
       // Filter by conversation partner if specified
@@ -505,13 +538,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       res.json(messages);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch messages" });
+    } catch (error: any) {
+      res.status(500).json({ message: "Failed to fetch messages", error: error.message });
     }
   });
 
   app.post("/api/messages", ensureAuthenticated, async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized: No user in session" });
+      }
       const messageData = insertMessageSchema.parse({
         ...req.body,
         senderId: req.user.id,
@@ -555,17 +591,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       res.status(201).json(message);
-    } catch (error) {
+    } catch (error: any) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Invalid message data", errors: error.errors });
       }
-      res.status(500).json({ message: "Failed to send message" });
+      res.status(500).json({ message: "Failed to send message", error: error.message });
     }
   });
 
   // Activities routes
   app.get("/api/activities", ensureAuthenticated, async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized: No user in session" });
+      }
       const userRole = req.user.role;
       const userId = req.user.id;
       
@@ -608,14 +647,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       res.json(activities);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch activities" });
+    } catch (error: any) {
+      res.status(500).json({ message: "Failed to fetch activities", error: error.message });
     }
   });
 
   // Project Files routes
   app.get("/api/projects/:projectId/files", ensureAuthenticated, async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized: No user in session" });
+      }
       const projectId = parseInt(req.params.projectId);
       
       // Check if user has access to this project
@@ -637,14 +679,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const files = await storage.getProjectFiles(projectId);
       res.json(files);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch project files" });
+    } catch (error: any) {
+      res.status(500).json({ message: "Failed to fetch project files", error: error.message });
     }
   });
 
   // In a real implementation, this would handle file uploads
   app.post("/api/projects/:projectId/files", ensureAuthenticated, async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized: No user in session" });
+      }
       const projectId = parseInt(req.params.projectId);
       
       // Check if user has access to this project
@@ -688,17 +733,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       res.status(201).json(file);
-    } catch (error) {
+    } catch (error: any) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Invalid file data", errors: error.errors });
       }
-      res.status(500).json({ message: "Failed to upload file" });
+      res.status(500).json({ message: "Failed to upload file", error: error.message });
     }
   });
 
   // Finance Documents routes
   app.get("/api/finance-documents", ensureAuthenticated, async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized: No user in session" });
+      }
       const userRole = req.user.role;
       const userId = req.user.id;
       
@@ -717,13 +765,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       res.json(documents);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch finance documents" });
+    } catch (error: any) {
+      res.status(500).json({ message: "Failed to fetch finance documents", error: error.message });
     }
   });
 
   app.post("/api/finance-documents", ensureAuthenticated, async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized: No user in session" });
+      }
       const userRole = req.user.role;
       const userId = req.user.id;
 
@@ -784,17 +835,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       res.status(201).json(document);
-    } catch (error) {
+    } catch (error: any) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Неверные данные документа", errors: error.errors });
       }
-      res.status(500).json({ message: "Failed to create finance document" });
+      res.status(500).json({ message: "Failed to create finance document", error: error.message });
     }
   });
 
   // Support Tickets routes
   app.get("/api/support-tickets", ensureAuthenticated, async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized: No user in session" });
+      }
       const userRole = req.user.role;
       const userId = req.user.id;
       
@@ -808,13 +862,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       res.json(tickets);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch support tickets" });
+    } catch (error: any) {
+      res.status(500).json({ message: "Failed to fetch support tickets", error: error.message });
     }
   });
 
   app.post("/api/support-tickets", ensureAuthenticated, async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized: No user in session" });
+      }
       const ticketData = insertSupportTicketSchema.parse({
         ...req.body,
         clientId: req.user.id,
@@ -850,17 +907,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       res.status(201).json(ticket);
-    } catch (error) {
+    } catch (error: any) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Invalid ticket data", errors: error.errors });
       }
-      res.status(500).json({ message: "Failed to create support ticket" });
+      res.status(500).json({ message: "Failed to create support ticket", error: error.message });
+    }
+  });
+
+  // --- НАЧАЛО БЛОКА РОУТОВ ДЛЯ /api/users --- 
+
+  // GET /api/users/clients - получить список клиентов (ПЕРЕМЕЩЕНО В НАЧАЛО)
+  app.get("/api/users/clients", ensureAuthenticated, async (req, res) => {
+    try {
+      if (!req.user) {
+        console.error("Unauthorized: No user in session for /api/users/clients");
+        return res.status(401).json({ message: "Unauthorized: Invalid user session" });
+      }
+      const userRole = req.user.role;
+      if (userRole !== 'admin' && userRole !== 'manager') {
+        return res.status(403).json({ message: "Forbidden: Only admins and managers can view clients" });
+      }
+      const clients = await storage.getUsersByRole("client");
+      console.log(`GET /api/users/clients: Found ${clients.length} clients for user ${req.user.email}`);
+      res.json(clients);
+    } catch (error: any) {
+      console.error("Error fetching clients:", error);
+      res.status(500).json({ message: "Failed to fetch clients", error: error.message });
+    }
+  });
+
+  // GET /api/users/managers - получить список менеджеров (ПЕРЕМЕЩЕНО В НАЧАЛО)
+  app.get("/api/users/managers", ensureAuthenticated, async (req, res) => {
+    try {
+      if (!req.user) {
+        console.error("Unauthorized: No user in session for /api/users/managers");
+        return res.status(401).json({ message: "Unauthorized: Invalid user session" });
+      }
+      const userRole = req.user.role;
+      if (userRole !== 'admin') {
+        return res.status(403).json({ message: "Forbidden: Only admins can view managers" });
+      }
+      const managers = await storage.getUsersByRole("manager");
+      console.log(`GET /api/users/managers: Found ${managers.length} managers for user ${req.user.email}`);
+      res.json(managers);
+    } catch (error: any) {
+      console.error("Error fetching managers:", error);
+      res.status(500).json({ message: "Failed to fetch managers", error: error.message });
     }
   });
 
   // User profile routes
   app.get("/api/users/contacts", ensureAuthenticated, async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized: No user in session" });
+      }
       // Get all users except current user
       const allUsers = await db.select().from(users).where(sql`id != ${req.user.id}`);
       
@@ -874,68 +976,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }));
       
       res.json(contacts);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching contacts:", error);
-      res.status(500).json({ message: "Failed to fetch contacts" });
+      res.status(500).json({ message: "Failed to fetch contacts", error: error.message });
     }
   });
 
-  // Update user profile
-  app.patch("/api/users/:id", ensureAuthenticated, async (req, res) => {
-    try {
-      const userId = parseInt(req.params.id);
-      
-      // Make sure user can only update their own profile
-      if (userId !== req.user.id && req.user.role !== "admin") {
-        return res.status(403).json({ message: "Access denied" });
-      }
-      
-      // Get the current user
-      const user = await storage.getUser(userId);
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-      
-      // Create update data with type safety
-      const updateData: Record<string, any> = {
-        firstName: req.body.firstName || user.firstName,
-        lastName: req.body.lastName || user.lastName,
-        email: req.body.email || user.email,
-        // Generate avatar initials from first and last name
-        avatarInitials: req.body.firstName && req.body.lastName 
-          ? `${req.body.firstName[0]}${req.body.lastName[0]}`.toUpperCase()
-          : user.avatarInitials
-      };
-      
-      // Add optional fields if provided
-      if (req.body.company !== undefined) updateData.company = req.body.company;
-      if (req.body.position !== undefined) updateData.position = req.body.position;
-      if (req.body.phone !== undefined) updateData.phone = req.body.phone;
-      if (req.body.bio !== undefined) updateData.bio = req.body.bio;
-      
-      // Update the user
-      const updatedUser = await db.update(users)
-        .set(updateData)
-        .where(eq(users.id, userId))
-        .returning();
-      
-      // Return the updated user
-      if (updatedUser.length > 0) {
-        // Remove password from response
-        const { password, ...userWithoutPassword } = updatedUser[0];
-        res.json(userWithoutPassword);
-      } else {
-        res.status(500).json({ message: "Failed to update user" });
-      }
-    } catch (error) {
-      console.error("Error updating user:", error);
-      res.status(500).json({ message: "Failed to update user" });
-    }
-  });
-  
   // Change user password
   app.post("/api/users/change-password", ensureAuthenticated, async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized: No user in session" });
+      }
       const { currentPassword, newPassword } = req.body;
       
       if (!currentPassword || !newPassword) {
@@ -963,9 +1015,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .where(eq(users.id, req.user.id));
       
       res.json({ message: "Password updated successfully" });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error changing password:", error);
-      res.status(500).json({ message: "Failed to change password" });
+      res.status(500).json({ message: "Failed to change password", error: error.message });
     }
   });
 
@@ -975,9 +1027,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const users = await storage.getAllUsers();
       res.json(users);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching users:", error);
-      res.status(500).json({ message: "Failed to fetch users" });
+      res.status(500).json({ message: "Failed to fetch users", error: error.message });
     }
   });
 
@@ -998,9 +1050,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       res.json(user);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
+      res.status(500).json({ message: "Failed to fetch user", error: error.message });
     }
   });
 
@@ -1032,9 +1084,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { password, ...userWithoutPassword } = newUser;
       
       res.status(201).json(userWithoutPassword);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating user:", error);
-      res.status(500).json({ message: "Failed to create user" });
+      res.status(500).json({ message: "Failed to create user", error: error.message });
+    }
+  });
+
+  // Update user profile
+  app.patch("/api/users/:id", ensureAuthenticated, async (req, res) => {
+    try {
+      if (!req.user) { 
+        return res.status(401).json({ message: "Unauthorized: No user in session" });
+      }
+      const userId = parseInt(req.params.id);
+      if (userId !== req.user.id && req.user.role !== "admin") { 
+        return res.status(403).json({ message: "Access denied" });
+      }
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      const updateData: Record<string, any> = {
+        firstName: req.body.firstName || user.firstName,
+        lastName: req.body.lastName || user.lastName,
+        email: req.body.email || user.email,
+        avatarInitials: req.body.firstName && req.body.lastName 
+          ? `${req.body.firstName[0]}${req.body.lastName[0]}`.toUpperCase()
+          : user.avatarInitials
+      };
+      if (req.body.company !== undefined) updateData.company = req.body.company;
+      if (req.body.position !== undefined) updateData.position = req.body.position;
+      if (req.body.phone !== undefined) updateData.phone = req.body.phone;
+      if (req.body.bio !== undefined) updateData.bio = req.body.bio;
+      const updatedUser = await db.update(users)
+        .set(updateData)
+        .where(eq(users.id, userId))
+        .returning();
+      if (updatedUser.length > 0) {
+        const { password, ...userWithoutPassword } = updatedUser[0];
+        res.json(userWithoutPassword);
+      } else {
+        res.status(500).json({ message: "Failed to update user" });
+      }
+    } catch (error: any) {
+      console.error("Error updating user:", error);
+      res.status(500).json({ message: "Failed to update user", error: error.message });
     }
   });
 
@@ -1078,9 +1172,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { password, ...userWithoutPassword } = updatedUser;
       
       res.json(userWithoutPassword);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating user:", error);
-      res.status(500).json({ message: "Failed to update user" });
+      res.status(500).json({ message: "Failed to update user", error: error.message });
     }
   });
 
@@ -1113,15 +1207,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.updateUser(userId, { password: hashedPassword });
       
       res.json({ message: "Password updated successfully" });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating password:", error);
-      res.status(500).json({ message: "Failed to update password" });
+      res.status(500).json({ message: "Failed to update password", error: error.message });
     }
   });
 
   // Удаление пользователя (только для администраторов)
   app.delete("/api/users/:id", ensureAuthenticated, hasRole(["admin"]), async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized: No user in session" });
+      }
       const userId = parseInt(req.params.id);
       
       // Проверка на валидный числовой ID
@@ -1144,57 +1241,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.deleteUser(userId);
       
       res.json({ message: "User deleted successfully" });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error deleting user:", error);
-      res.status(500).json({ message: "Failed to delete user" });
+      res.status(500).json({ message: "Failed to delete user", error: error.message });
     }
   });
 
-  // GET /api/users/clients - получить список клиентов
-  app.get("/api/users/clients", ensureAuthenticated, async (req, res) => {
-    try {
-      // Проверяем роль пользователя
-      const userRole = req.user?.role;
-      console.log(`Fetching clients list. User role: ${userRole}`);
-      
-      if (userRole !== 'admin' && userRole !== 'manager') {
-        return res.status(403).json({ message: "Forbidden: Only admins and managers can view clients" });
-      }
-      
-      // Получаем список пользователей с ролью client
-      const clients = await storage.getUsersByRole("client");
-      console.log(`Found ${clients.length} clients`);
-      res.json(clients);
-    } catch (error) {
-      console.error("Error fetching clients:", error);
-      res.status(500).json({ message: "Failed to fetch clients" });
-    }
-  });
-  
-  // GET /api/users/managers - получить список менеджеров
-  app.get("/api/users/managers", ensureAuthenticated, async (req, res) => {
-    try {
-      // Проверяем роль пользователя
-      const userRole = req.user?.role;
-      console.log(`Fetching managers list. User role: ${userRole}`);
-      
-      if (userRole !== 'admin') {
-        return res.status(403).json({ message: "Forbidden: Only admins can view managers" });
-      }
-      
-      // Получаем список пользователей с ролью manager
-      const managers = await storage.getUsersByRole("manager");
-      console.log(`Found ${managers.length} managers`);
-      res.json(managers);
-    } catch (error) {
-      console.error("Error fetching managers:", error);
-      res.status(500).json({ message: "Failed to fetch managers" });
-    }
-  });
-  
   // GET /api/users/contacts - получить список всех пользователей для контактов
   app.get("/api/users/contacts", ensureAuthenticated, async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized: No user in session" });
+      }
       // Получаем список всех пользователей (кроме текущего)
       const contacts = await db.select({
         id: users.id,
@@ -1207,9 +1265,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       .where(ne(users.id, req.user.id));
       
       res.json(contacts);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching contacts:", error);
-      res.status(500).json({ message: "Failed to fetch contacts" });
+      res.status(500).json({ message: "Failed to fetch contacts", error: error.message });
     }
   });
 
@@ -1236,6 +1294,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Загрузка файлов для проекта
   app.post('/api/project-files/upload', ensureAuthenticated, upload.array('files'), async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized: No user in session" });
+      }
       if (!req.files || req.files.length === 0) {
         return res.status(400).json({ message: 'No files uploaded' });
       }
@@ -1295,9 +1356,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       res.status(201).json(savedFiles);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error uploading files:', error);
-      res.status(500).json({ message: 'Failed to upload files' });
+      res.status(500).json({ message: 'Failed to upload files', error: error.message });
     }
   });
 

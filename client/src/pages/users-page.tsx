@@ -683,7 +683,7 @@ export default function UsersPage() {
                     <FormItem>
                       <FormLabel>Пароль*</FormLabel>
                       <FormControl>
-                        <Input {...field} type="password" placeholder="Минимум 6 символов" />
+                        <Input {...field} type="password" placeholder="Минимум 6 символов" autoComplete="current-password" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -920,7 +920,7 @@ export default function UsersPage() {
                     <FormItem>
                       <FormLabel>Новый пароль*</FormLabel>
                       <FormControl>
-                        <Input {...field} type="password" placeholder="Минимум 6 символов" />
+                        <Input {...field} type="password" placeholder="Минимум 6 символов" autoComplete="current-password" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

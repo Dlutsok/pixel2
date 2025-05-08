@@ -21,8 +21,19 @@ export default function ProjectDetailPage() {
   const { user } = useAuth();
   
   // Fetch project details
-  const { data: project, isLoading: isLoadingProject } = useQuery({
-    queryKey: ["/api/projects", projectId],
+  const { data: project, isLoading: isLoadingProject } = useQuery<Project>({
+    queryKey: ["projectDetail", projectId],
+    queryFn: async () => {
+      if (!projectId) return null;
+      const res = await fetch(`/api/projects/${projectId}`, {
+        credentials: "include",
+      });
+      if (!res.ok) {
+        if (res.status === 404) return null;
+        throw new Error(`Failed to fetch project: ${res.status}`);
+      }
+      return res.json();
+    },
     enabled: !!projectId && !!user,
   });
   
@@ -51,14 +62,36 @@ export default function ProjectDetailPage() {
   });
   
   // Fetch client data
-  const { data: client, isLoading: isLoadingClient } = useQuery({
-    queryKey: ["/api/user", project?.clientId],
+  const { data: client, isLoading: isLoadingClient } = useQuery<User>({
+    queryKey: ["user", project?.clientId],
+    queryFn: async () => {
+      if (!project?.clientId) return null;
+      const res = await fetch(`/api/users/${project.clientId}`, {
+        credentials: "include",
+      });
+      if (!res.ok) {
+        if (res.status === 404) return null;
+        throw new Error(`Failed to fetch client: ${res.status}`);
+      }
+      return res.json();
+    },
     enabled: !!project?.clientId,
   });
   
   // Fetch manager data
-  const { data: manager, isLoading: isLoadingManager } = useQuery({
-    queryKey: ["/api/user", project?.managerId],
+  const { data: manager, isLoading: isLoadingManager } = useQuery<User>({
+    queryKey: ["user", project?.managerId],
+    queryFn: async () => {
+      if (!project?.managerId) return null;
+      const res = await fetch(`/api/users/${project.managerId}`, {
+        credentials: "include",
+      });
+      if (!res.ok) {
+        if (res.status === 404) return null;
+        throw new Error(`Failed to fetch manager: ${res.status}`);
+      }
+      return res.json();
+    },
     enabled: !!project?.managerId,
   });
   
@@ -103,17 +136,19 @@ export default function ProjectDetailPage() {
     );
   }
 
+  console.log("Project data in component:", project);
+  console.log("Client data in component:", client);
+  console.log("Manager data in component:", manager);
+
   return (
     <Layout>
       <div className="p-6">
         {/* Project Header */}
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-2 text-sm text-primary">
-            <Link href="/projects">
-              <a className="flex items-center hover:underline">
-                <ChevronLeft className="h-4 w-4" />
-                <span>Назад к проектам</span>
-              </a>
+            <Link href="/projects" className="flex items-center hover:underline">
+              <ChevronLeft className="h-4 w-4" />
+              <span>Назад к проектам</span>
             </Link>
           </div>
           

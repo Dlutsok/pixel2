@@ -202,7 +202,7 @@ export default function AuthPage() {
                             </Dialog>
                           </div>
                           <FormControl>
-                            <Input type="password" placeholder="••••••••" {...field} />
+                            <Input type="password" placeholder="••••••••" {...field} autoComplete="current-password" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -318,7 +318,7 @@ export default function AuthPage() {
                         <FormItem>
                           <FormLabel>Пароль</FormLabel>
                           <FormControl>
-                            <Input type="password" placeholder="••••••••" {...field} />
+                            <Input type="password" placeholder="••••••••" {...field} autoComplete="current-password" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -332,7 +332,7 @@ export default function AuthPage() {
                         <FormItem>
                           <FormLabel>Подтверждение пароля</FormLabel>
                           <FormControl>
-                            <Input type="password" placeholder="••••••••" {...field} />
+                            <Input type="password" placeholder="••••••••" {...field} autoComplete="current-password" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
