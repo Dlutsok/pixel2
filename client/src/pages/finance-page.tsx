@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import Layout from "@/components/layout/layout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -18,12 +18,54 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
-import { Download, Search, FileText, Receipt, FileCheck } from "lucide-react";
+import { Download, Search, FileText, Receipt, FileCheck, Plus, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { insertFinanceDocumentSchema } from "@shared/schema";
+
+// Схема для создания финансового документа
+const financeDocumentFormSchema = insertFinanceDocumentSchema.extend({
+  name: z.string().min(3, { message: "Название должно содержать не менее 3 символов" }),
+  type: z.enum(["invoice", "receipt", "contract"], { 
+    required_error: "Выберите тип документа" 
+  }),
+  status: z.enum(["pending", "paid", "overdue"], { 
+    required_error: "Выберите статус документа" 
+  }),
+  projectId: z.coerce.number().optional(),
+  amount: z.coerce.number().optional(),
+  dueDate: z.string().optional(),
+  path: z.string().default("/uploads/document-placeholder.pdf"),
+});
+
+type FinanceDocumentFormValues = z.infer<typeof financeDocumentFormSchema>;
 
 export default function FinancePage() {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   
   // Fetch finance documents
   const { data: documents, isLoading } = useQuery({
@@ -75,6 +117,56 @@ export default function FinancePage() {
     }
   };
   
+  // Мутация для создания нового документа
+  const createDocumentMutation = useMutation({
+    mutationFn: async (data: FinanceDocumentFormValues) => {
+      // Преобразовать строковую дату в объект Date перед отправкой
+      const formattedData = {
+        ...data,
+        clientId: user?.id,
+        dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
+        createdAt: new Date()
+      };
+      
+      const res = await apiRequest("POST", "/api/finance-documents", formattedData);
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Документ создан",
+        description: "Финансовый документ был успешно добавлен"
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/finance-documents"] });
+      setIsAddDialogOpen(false);
+    },
+    onError: (error) => {
+      toast({
+        title: "Ошибка при создании документа",
+        description: error.message || "Произошла ошибка при добавлении документа",
+        variant: "destructive"
+      });
+    }
+  });
+
+  // Форма для создания документа
+  const form = useForm<FinanceDocumentFormValues>({
+    resolver: zodResolver(financeDocumentFormSchema),
+    defaultValues: {
+      name: "",
+      type: "invoice",
+      status: "pending",
+      projectId: undefined,
+      amount: undefined,
+      dueDate: "",
+      path: "/uploads/document-placeholder.pdf"
+    }
+  });
+
+  // Обработчик отправки формы
+  function onSubmit(values: FinanceDocumentFormValues) {
+    createDocumentMutation.mutate(values);
+  }
+
   const getDocumentIcon = (type: string) => {
     switch (type) {
       case "invoice":

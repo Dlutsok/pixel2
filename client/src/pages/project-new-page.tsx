@@ -41,7 +41,7 @@ const projectFormSchema = insertProjectSchema.extend({
   domain: z.string().optional(),
   status: z.enum(["new", "in_progress", "paused", "completed", "archived"]).default("new"),
   budget: z.coerce.number().min(0).optional(),
-  startDate: z.string().optional(),
+  startDate: z.string().min(1, "Дата начала обязательна"),
   endDate: z.string().optional(),
 });
 
@@ -93,7 +93,14 @@ export default function ProjectNewPage() {
   });
   
   function onSubmit(values: ProjectFormValues) {
-    createProjectMutation.mutate(values);
+    // Преобразовать строковые даты в объекты Date перед отправкой на сервер
+    const formattedValues = {
+      ...values,
+      startDate: values.startDate ? new Date(values.startDate) : undefined,
+      endDate: values.endDate ? new Date(values.endDate) : undefined,
+    };
+    
+    createProjectMutation.mutate(formattedValues as any);
   }
   
   return (
