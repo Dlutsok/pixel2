@@ -10,14 +10,17 @@ import {
   financeDocuments, type FinanceDocument, type InsertFinanceDocument,
   supportTickets, type SupportTicket, type InsertSupportTicket
 } from "@shared/schema";
+import { db } from "./db";
+import { eq, and, or, inArray, desc, asc } from "drizzle-orm";
 import session from "express-session";
-import createMemoryStore from "memorystore";
+import connectPg from "connect-pg-simple";
+import { pool } from "./db";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 
 const scryptAsync = promisify(scrypt);
 
-const MemoryStore = createMemoryStore(session);
+const PostgresSessionStore = connectPg(session);
 
 export interface IStorage {
   // User operations
@@ -82,82 +85,150 @@ export interface IStorage {
   sessionStore: any;
 }
 
-export class MemStorage implements IStorage {
-  private usersData: Map<number, User>;
-  private projectsData: Map<number, Project>;
-  private projectPhasesData: Map<number, ProjectPhase>;
-  private tasksData: Map<number, Task>;
-  private taskCommentsData: Map<number, TaskComment>;
-  private messagesData: Map<number, Message>;
-  private activitiesData: Map<number, Activity>;
-  private projectFilesData: Map<number, ProjectFile>;
-  private financeDocumentsData: Map<number, FinanceDocument>;
-  private supportTicketsData: Map<number, SupportTicket>;
-  
+export class DatabaseStorage implements IStorage {
   sessionStore: any;
-  
-  private userCounter: number = 1;
-  private projectCounter: number = 1;
-  private phaseCounter: number = 1;
-  private taskCounter: number = 1;
-  private commentCounter: number = 1;
-  private messageCounter: number = 1;
-  private activityCounter: number = 1;
-  private fileCounter: number = 1;
-  private documentCounter: number = 1;
-  private ticketCounter: number = 1;
 
   constructor() {
-    this.usersData = new Map();
-    this.projectsData = new Map();
-    this.projectPhasesData = new Map();
-    this.tasksData = new Map();
-    this.taskCommentsData = new Map();
-    this.messagesData = new Map();
-    this.activitiesData = new Map();
-    this.projectFilesData = new Map();
-    this.financeDocumentsData = new Map();
-    this.supportTicketsData = new Map();
-    
-    this.sessionStore = new MemoryStore({
-      checkPeriod: 86400000,
+    this.sessionStore = new PostgresSessionStore({ 
+      pool,
+      createTableIfMissing: true
     });
     
-    // Create demo users
+    // Create demo data if it doesn't exist yet
     this.seedInitialData();
   }
+  
+  // User operations
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
 
-  private seedInitialData() {
-    // Create demo admin user with plaintext passwords
-    // They will be hashed properly in the createUser method
-    this.createUser({
-      email: "admin@webstudio.com",
-      password: "admin123", // Will be hashed in createUser method
-      firstName: "Admin",
-      lastName: "User",
-      role: "admin",
-      avatarInitials: "AU"
-    });
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(
+      eq(users.email, email.toLowerCase())
+    );
+    return user;
+  }
+
+  async createUser(userData: InsertUser & { avatarInitials?: string }): Promise<User> {
+    const avatarInitials = userData.avatarInitials || 
+      `${userData.firstName.charAt(0)}${userData.lastName.charAt(0)}`;
     
-    // Create demo manager user
-    this.createUser({
-      email: "manager@webstudio.com",
-      password: "manager123", // Will be hashed in createUser method
-      firstName: "Manager",
-      lastName: "User",
-      role: "manager",
-      avatarInitials: "MU"
-    });
+    // Hash password if needed
+    let password = userData.password;
+    if (!password.includes('.')) { // Simple check if the password is already hashed
+      const salt = randomBytes(16).toString("hex");
+      const buf = (await scryptAsync(password, salt, 64)) as Buffer;
+      password = `${buf.toString("hex")}.${salt}`;
+    }
     
-    // Create demo client user
-    this.createUser({
-      email: "client@example.com",
-      password: "client123", // Will be hashed in createUser method
-      firstName: "Client",
-      lastName: "User",
-      role: "client",
-      avatarInitials: "CU"
-    });
+    const [user] = await db.insert(users).values({
+      email: userData.email.toLowerCase(),
+      password,
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      role: userData.role || 'client',
+      avatarInitials
+    }).returning();
+    
+    return user;
+  }
+
+  // Project operations
+  async getAllProjects(): Promise<Project[]> {
+    return await db.select().from(projects);
+  }
+
+  async getProject(id: number): Promise<Project | undefined> {
+    const [project] = await db.select().from(projects).where(eq(projects.id, id));
+    return project;
+  }
+
+  async getProjectsByClientId(clientId: number): Promise<Project[]> {
+    return await db.select().from(projects).where(eq(projects.clientId, clientId));
+  }
+
+  async getProjectsByManagerId(managerId: number): Promise<Project[]> {
+    return await db.select().from(projects).where(eq(projects.managerId, managerId));
+  }
+
+  async createProject(projectData: InsertProject): Promise<Project> {
+    const [project] = await db.insert(projects).values({
+      name: projectData.name,
+      status: projectData.status || 'pending',
+      progress: projectData.progress || 0,
+      description: projectData.description || null,
+      domain: projectData.domain || null,
+      startDate: projectData.startDate,
+      endDate: projectData.endDate || null,
+      currentPhase: projectData.currentPhase || null,
+      clientId: projectData.clientId,
+      managerId: projectData.managerId || null
+    }).returning();
+    
+    return project;
+  }
+
+  async updateProject(id: number, updateData: Partial<Project>): Promise<Project> {
+    const [project] = await db.update(projects)
+      .set(updateData)
+      .where(eq(projects.id, id))
+      .returning();
+    
+    if (!project) {
+      throw new Error(`Project with ID ${id} not found`);
+    }
+    
+    return project;
+  }
+
+  private async seedInitialData() {
+    try {
+      // Check if any users exist already
+      const existingUsers = await db.select().from(users);
+      if (existingUsers.length > 0) {
+        console.log("Users already exist, skipping seed data creation");
+        return;
+      }
+      
+      console.log("Creating seed data...");
+      
+      // Create demo admin user with plaintext passwords
+      // They will be hashed properly in the createUser method
+      await this.createUser({
+        email: "admin@webstudio.com",
+        password: "admin123", // Will be hashed in createUser method
+        firstName: "Admin",
+        lastName: "User",
+        role: "admin",
+        avatarInitials: "AU"
+      });
+      
+      // Create demo manager user
+      await this.createUser({
+        email: "manager@webstudio.com",
+        password: "manager123", // Will be hashed in createUser method
+        firstName: "Manager",
+        lastName: "User",
+        role: "manager",
+        avatarInitials: "MU"
+      });
+      
+      // Create demo client user
+      await this.createUser({
+        email: "client@example.com",
+        password: "client123", // Will be hashed in createUser method
+        firstName: "Client",
+        lastName: "User",
+        role: "client",
+        avatarInitials: "CU"
+      });
+      
+      console.log("Seed data created successfully");
+    } catch (error) {
+      console.error("Error seeding initial data:", error);
+    }
   }
 
   // User operations
@@ -251,76 +322,94 @@ export class MemStorage implements IStorage {
 
   // Project Phase operations
   async getProjectPhases(projectId: number): Promise<ProjectPhase[]> {
-    return Array.from(this.projectPhasesData.values())
-      .filter((phase) => phase.projectId === projectId)
-      .sort((a, b) => a.order - b.order);
+    return await db.select()
+      .from(projectPhases)
+      .where(eq(projectPhases.projectId, projectId))
+      .orderBy(projectPhases.order);
   }
 
   async createProjectPhase(phaseData: InsertProjectPhase): Promise<ProjectPhase> {
-    const id = this.phaseCounter++;
-    const phase: ProjectPhase = { ...phaseData, id };
-    this.projectPhasesData.set(id, phase);
+    const [phase] = await db.insert(projectPhases)
+      .values({
+        name: phaseData.name,
+        status: phaseData.status,
+        projectId: phaseData.projectId,
+        order: phaseData.order,
+        startDate: phaseData.startDate || null,
+        endDate: phaseData.endDate || null,
+        description: phaseData.description || null
+      })
+      .returning();
+    
     return phase;
   }
 
   async updateProjectPhase(id: number, updateData: Partial<ProjectPhase>): Promise<ProjectPhase> {
-    const phase = this.projectPhasesData.get(id);
+    const [phase] = await db.update(projectPhases)
+      .set(updateData)
+      .where(eq(projectPhases.id, id))
+      .returning();
+    
     if (!phase) {
       throw new Error(`Project phase with ID ${id} not found`);
     }
     
-    const updatedPhase = { ...phase, ...updateData };
-    this.projectPhasesData.set(id, updatedPhase);
-    return updatedPhase;
+    return phase;
   }
 
   // Task operations
   async getAllTasks(): Promise<Task[]> {
-    return Array.from(this.tasksData.values());
+    return await db.select().from(tasks);
   }
 
   async getTask(id: number): Promise<Task | undefined> {
-    return this.tasksData.get(id);
+    const [task] = await db.select().from(tasks).where(eq(tasks.id, id));
+    return task;
   }
 
   async getTasksByProjectId(projectId: number): Promise<Task[]> {
-    return Array.from(this.tasksData.values()).filter(
-      (task) => task.projectId === projectId
-    );
+    return await db.select()
+      .from(tasks)
+      .where(eq(tasks.projectId, projectId));
   }
 
   async getTasksByProjectIds(projectIds: number[]): Promise<Task[]> {
-    return Array.from(this.tasksData.values()).filter(
-      (task) => projectIds.includes(task.projectId)
-    );
+    return await db.select()
+      .from(tasks)
+      .where(inArray(tasks.projectId, projectIds));
   }
 
   async createTask(taskData: InsertTask): Promise<Task> {
-    const id = this.taskCounter++;
-    const task: Task = { 
-      ...taskData, 
-      id,
-      status: taskData.status || "pending",
-      priority: taskData.priority || "medium",
-      description: taskData.description || null,
-      dueDate: taskData.dueDate || null,
-      assignedToId: taskData.assignedToId || null,
-      attachments: taskData.attachments || null,
-      commentCount: 0 
-    };
-    this.tasksData.set(id, task);
+    const [task] = await db.insert(tasks)
+      .values({
+        title: taskData.title,
+        description: taskData.description || null,
+        status: taskData.status || "pending",
+        priority: taskData.priority || "medium",
+        projectId: taskData.projectId,
+        createdById: taskData.createdById,
+        dueDate: taskData.dueDate || null,
+        assignedToId: taskData.assignedToId || null,
+        attachments: taskData.attachments || null,
+        commentCount: 0,
+        createdAt: taskData.createdAt || new Date()
+      })
+      .returning();
+    
     return task;
   }
 
   async updateTask(id: number, updateData: Partial<Task>): Promise<Task> {
-    const task = this.tasksData.get(id);
+    const [task] = await db.update(tasks)
+      .set(updateData)
+      .where(eq(tasks.id, id))
+      .returning();
+    
     if (!task) {
       throw new Error(`Task with ID ${id} not found`);
     }
     
-    const updatedTask = { ...task, ...updateData };
-    this.tasksData.set(id, updatedTask);
-    return updatedTask;
+    return task;
   }
 
   // Task Comment operations
@@ -470,4 +559,4 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
