@@ -10,7 +10,7 @@ import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import ProjectStatusBadge from "@/components/projects/project-status-badge";
 import ActivityItem from "@/components/dashboard/activity-item";
-import { format } from "date-fns";
+import { format, isValid } from "date-fns";
 import { ru } from "date-fns/locale";
 import { File, Calendar, Users, ChevronLeft, Download } from "lucide-react";
 
@@ -64,7 +64,10 @@ export default function ProjectDetailPage() {
   
   const formatDate = (date: string | Date | null | undefined) => {
     if (!date) return "Не указано";
-    return format(new Date(date), 'd MMMM, yyyy', { locale: ru });
+    const parsedDate = new Date(date);
+    return isValid(parsedDate) 
+      ? format(parsedDate, 'd MMMM, yyyy', { locale: ru })
+      : "Дата неизвестна";
   };
   
   if (isLoadingProject) {
