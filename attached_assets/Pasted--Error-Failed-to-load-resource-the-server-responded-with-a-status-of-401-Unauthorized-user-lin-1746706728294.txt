@@ -1,0 +1,107 @@
+[Error] Failed to load resource: the server responded with a status of 401 (Unauthorized) (user, line 0)
+[Error] Warning: validateDOMNesting(...): <a> cannot appear as a descendant of <a>.
+a
+a
+@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js:337:27
+div
+div
+footer
+Footer
+main
+div
+Layout@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/src/components/layout/layout.tsx:22:42
+DashboardPage@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/src/pages/dashboard-page.tsx:38:27
+DashboardRouter@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/src/components/dashboard-router.tsx:23:27
+Route@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js:323:20
+ProtectedRoute@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/src/lib/protected-route.tsx:22:7
+Switch@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js:379:25
+Router
+TooltipProviderProvider@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OXZDJRWN.js:38:52
+TooltipProvider@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js:69:12
+AuthProvider@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/src/hooks/use-auth.tsx:31:40
+V@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/next-themes.js:44:26
+J@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/next-themes.js:42:28
+QueryClientProvider@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js:2805:9
+App
+	printWarning (chunk-RPCDYKBN.js:521)
+	error (chunk-RPCDYKBN.js:505)
+	validateDOMNesting (chunk-RPCDYKBN.js:8256)
+	createInstance (chunk-RPCDYKBN.js:8328)
+	completeWork (chunk-RPCDYKBN.js:16290)
+	completeUnitOfWork (chunk-RPCDYKBN.js:19224)
+	performUnitOfWork (chunk-RPCDYKBN.js:19206)
+	workLoopSync (chunk-RPCDYKBN.js:19137)
+	renderRootSync (chunk-RPCDYKBN.js:19116)
+	performSyncWorkOnRoot (chunk-RPCDYKBN.js:18874)
+	flushSyncCallbacks (chunk-RPCDYKBN.js:9119)
+	(анонимная функция) (chunk-RPCDYKBN.js:18627)
+[Error] RangeError: Invalid time value
+	format (chunk-O42U6HQT.js:1760)
+	(анонимная функция) (project-edit-page.tsx:1319)
+	map
+	ProjectEditPage (project-edit-page.tsx:1304:280)
+	renderWithHooks (chunk-RPCDYKBN.js:11548)
+	mountIndeterminateComponent (chunk-RPCDYKBN.js:14926)
+	callCallback2 (chunk-RPCDYKBN.js:3674)
+	dispatchEvent
+	invokeGuardedCallbackDev (chunk-RPCDYKBN.js:3699)
+	invokeGuardedCallback (chunk-RPCDYKBN.js:3733)
+	beginWork$1 (chunk-RPCDYKBN.js:19765)
+	performUnitOfWork (chunk-RPCDYKBN.js:19198)
+	workLoopSync (chunk-RPCDYKBN.js:19137)
+	renderRootSync (chunk-RPCDYKBN.js:19116)
+	performSyncWorkOnRoot (chunk-RPCDYKBN.js:18874)
+	flushSyncCallbacks (chunk-RPCDYKBN.js:9119)
+	(анонимная функция) (chunk-RPCDYKBN.js:18627)
+[Error] RangeError: Invalid time value
+	format (chunk-O42U6HQT.js:1760)
+	(анонимная функция) (project-edit-page.tsx:1319)
+	map
+	ProjectEditPage (project-edit-page.tsx:1304:280)
+	renderWithHooks (chunk-RPCDYKBN.js:11548)
+	mountIndeterminateComponent (chunk-RPCDYKBN.js:14926)
+	callCallback2 (chunk-RPCDYKBN.js:3674)
+	dispatchEvent
+	invokeGuardedCallbackDev (chunk-RPCDYKBN.js:3699)
+	invokeGuardedCallback (chunk-RPCDYKBN.js:3733)
+	beginWork$1 (chunk-RPCDYKBN.js:19765)
+	performUnitOfWork (chunk-RPCDYKBN.js:19198)
+	workLoopSync (chunk-RPCDYKBN.js:19137)
+	renderRootSync (chunk-RPCDYKBN.js:19116)
+	recoverFromConcurrentError (chunk-RPCDYKBN.js:18736)
+	performSyncWorkOnRoot (chunk-RPCDYKBN.js:18879)
+	flushSyncCallbacks (chunk-RPCDYKBN.js:9119)
+	(анонимная функция) (chunk-RPCDYKBN.js:18627)
+[Error] The above error occurred in the <ProjectEditPage> component:
+
+ProjectEditPage@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/src/pages/project-edit-page.tsx:54:43
+Route@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js:323:20
+ProtectedRoute@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/src/lib/protected-route.tsx:22:7
+Switch@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js:379:25
+Router
+TooltipProviderProvider@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OXZDJRWN.js:38:52
+TooltipProvider@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js:69:12
+AuthProvider@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/src/hooks/use-auth.tsx:31:40
+V@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/next-themes.js:44:26
+J@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/next-themes.js:42:28
+QueryClientProvider@https://b00e49e6-3fcd-45db-94d6-b21227f8d4e9-00-3v6ogtsb1biy9.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js:2805:9
+App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+	logCapturedError (chunk-RPCDYKBN.js:14032)
+	(анонимная функция) (chunk-RPCDYKBN.js:14052)
+	callCallback (chunk-RPCDYKBN.js:11248)
+	commitUpdateQueue (chunk-RPCDYKBN.js:11265)
+	commitLayoutEffectOnFiber (chunk-RPCDYKBN.js:17093)
+	commitLayoutMountEffects_complete (chunk-RPCDYKBN.js:17980)
+	commitLayoutEffects_begin (chunk-RPCDYKBN.js:17969)
+	commitLayoutEffects (chunk-RPCDYKBN.js:17920)
+	commitRootImpl (chunk-RPCDYKBN.js:19353)
+	commitRoot (chunk-RPCDYKBN.js:19277)
+	performSyncWorkOnRoot (chunk-RPCDYKBN.js:18895)
+	flushSyncCallbacks (chunk-RPCDYKBN.js:9119)
+	(анонимная функция) (chunk-RPCDYKBN.js:18627)
+[Error] RangeError: Invalid time value
+	flushSyncCallbacks (chunk-RPCDYKBN.js:9129)
+	(анонимная функция) (chunk-RPCDYKBN.js:18627)

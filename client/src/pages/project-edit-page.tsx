@@ -18,7 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CalendarIcon, ChevronLeft, X, Trash2 } from "lucide-react";
-import { format } from "date-fns";
+import { format, isValid } from "date-fns";
 import { ru } from "date-fns/locale";
 
 // Схема валидации формы проекта
@@ -661,7 +661,9 @@ export default function ProjectEditPage() {
                           <div className="flex-1 min-w-0">
                             <p className="truncate text-sm">{file.name}</p>
                             <p className="text-xs text-neutral-500">
-                              {format(new Date(file.uploadedAt), 'd MMM, yyyy', { locale: ru })} • 
+                              {file.uploadedAt && isValid(new Date(file.uploadedAt))
+                                ? format(new Date(file.uploadedAt), 'd MMM, yyyy', { locale: ru })
+                                : "Дата неизвестна"} • 
                               {(file.size / 1024).toFixed(2)} KB
                             </p>
                           </div>
