@@ -13,6 +13,7 @@ import AuthPage from "@/pages/auth-page";
 import ProjectsPage from "@/pages/projects-page";
 import ProjectDetailPage from "@/pages/project-detail-page";
 import ProjectNewPage from "@/pages/project-new-page";
+import ProjectEditPage from "@/pages/project-edit-page";
 import TasksPage from "@/pages/tasks-page";
 import TaskDetailPage from "@/pages/task-detail-page";
 import ChatPage from "@/pages/chat-page";
@@ -30,6 +31,7 @@ function Router() {
       <ProtectedRoute path="/" component={DashboardRouter} />
       <ProtectedRoute path="/projects" component={ProjectsPage} />
       <ProtectedRoute path="/projects/new" component={ProjectNewPage} />
+      <ProtectedRoute path="/projects/:id/edit" component={ProjectEditPage} />
       <ProtectedRoute path="/projects/:id" component={ProjectDetailPage} />
       <ProtectedRoute path="/tasks" component={TasksPage} />
       <ProtectedRoute path="/tasks/:id" component={TaskDetailPage} />

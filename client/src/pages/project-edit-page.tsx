@@ -38,13 +38,17 @@ const projectFormSchema = z.object({
 type ProjectFormValues = z.infer<typeof projectFormSchema>;
 
 export default function ProjectEditPage() {
-  const [, navigate] = useLocation();
+  const [location, navigate] = useLocation();
   const { id } = useParams<{ id: string }>();
   const projectId = parseInt(id);
   const { user } = useAuth();
   const { toast } = useToast();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Получаем параметр tab из URL, если он есть
+  const searchParams = new URLSearchParams(location.split("?")[1]);
+  const activeTab = searchParams.get('tab');
   
   // Получаем данные проекта
   const { data: project, isLoading } = useQuery({

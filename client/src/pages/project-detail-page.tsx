@@ -295,14 +295,26 @@ export default function ProjectDetailPage() {
                             </p>
                           </div>
                         </div>
-                        <Button variant="ghost" size="sm">Скачать</Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => window.open(`/api/project-files/${file.id}/download`, '_blank')}
+                        >
+                          <Download className="h-4 w-4 mr-1" />
+                          Скачать
+                        </Button>
                       </div>
                     ))}
                   </div>
                 ) : (
                   <div className="text-center py-8">
                     <p className="text-neutral-500 mb-2">Нет загруженных файлов</p>
-                    <Button variant="outline">Загрузить первый файл</Button>
+                    <Button 
+                      variant="outline"
+                      onClick={() => navigate(`/projects/${projectId}/edit?tab=files`)}
+                    >
+                      Загрузить первый файл
+                    </Button>
                   </div>
                 )}
               </CardContent>
