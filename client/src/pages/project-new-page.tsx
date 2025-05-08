@@ -55,7 +55,14 @@ export default function ProjectNewPage() {
   // Create project mutation
   const createProjectMutation = useMutation({
     mutationFn: async (data: ProjectFormValues) => {
-      const res = await apiRequest("POST", "/api/projects", data);
+      // Важно: преобразуем строковые даты в объекты Date для соответствия схеме
+      const formattedData = {
+        ...data,
+        startDate: data.startDate ? new Date(data.startDate) : undefined,
+        endDate: data.endDate && data.endDate.trim() !== "" ? new Date(data.endDate) : undefined,
+      };
+      
+      const res = await apiRequest("POST", "/api/projects", formattedData);
       return res.json();
     },
     onSuccess: (data) => {
@@ -93,14 +100,8 @@ export default function ProjectNewPage() {
   });
   
   function onSubmit(values: ProjectFormValues) {
-    // Преобразовать строковые даты в объекты Date перед отправкой на сервер
-    const formattedValues = {
-      ...values,
-      startDate: values.startDate ? new Date(values.startDate) : undefined,
-      endDate: values.endDate ? new Date(values.endDate) : undefined,
-    };
-    
-    createProjectMutation.mutate(formattedValues as any);
+    // Преобразование дат происходит непосредственно в mutationFn
+    createProjectMutation.mutate(values);
   }
   
   return (
