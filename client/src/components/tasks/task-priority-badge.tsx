@@ -1,41 +1,36 @@
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+
+type TaskPriority = "low" | "medium" | "high" | "urgent";
 
 interface TaskPriorityBadgeProps {
-  priority: string;
+  priority: TaskPriority;
 }
 
+const priorityConfig: Record<TaskPriority, { label: string; className: string }> = {
+  low: {
+    label: "Низкий",
+    className: "bg-slate-100 text-slate-800 hover:bg-slate-200"
+  },
+  medium: {
+    label: "Средний",
+    className: "bg-blue-100 text-blue-800 hover:bg-blue-200"
+  },
+  high: {
+    label: "Высокий",
+    className: "bg-amber-100 text-amber-800 hover:bg-amber-200"
+  },
+  urgent: {
+    label: "Срочный",
+    className: "bg-red-100 text-red-800 hover:bg-red-200"
+  }
+};
+
 export default function TaskPriorityBadge({ priority }: TaskPriorityBadgeProps) {
-  const getPriorityConfig = () => {
-    switch (priority) {
-      case "low":
-        return {
-          label: "Низкий",
-          className: "bg-success/10 text-success hover:bg-success/20"
-        };
-      case "medium":
-        return {
-          label: "Средний",
-          className: "bg-warning/10 text-warning hover:bg-warning/20"
-        };
-      case "high":
-        return {
-          label: "Высокий",
-          className: "bg-danger/10 text-danger hover:bg-danger/20"
-        };
-      default:
-        return {
-          label: priority,
-          className: "bg-neutral-200 text-neutral-700 hover:bg-neutral-300"
-        };
-    }
-  };
-  
-  const { label, className } = getPriorityConfig();
+  const config = priorityConfig[priority] || priorityConfig.medium;
   
   return (
-    <Badge className={cn("font-normal", className)} variant="outline">
-      {label}
+    <Badge className={config.className}>
+      {config.label}
     </Badge>
   );
 }

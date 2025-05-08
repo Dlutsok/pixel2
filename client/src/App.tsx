@@ -10,7 +10,6 @@ import { ThemeProvider } from "next-themes";
 // Pages
 import NotFound from "@/pages/not-found";
 import AuthPage from "@/pages/auth-page";
-import DashboardPage from "@/pages/dashboard-page";
 import ProjectsPage from "@/pages/projects-page";
 import ProjectDetailPage from "@/pages/project-detail-page";
 import TasksPage from "@/pages/tasks-page";
@@ -19,11 +18,14 @@ import ChatPage from "@/pages/chat-page";
 import FinancePage from "@/pages/finance-page";
 import SupportPage from "@/pages/support-page";
 
+// Components
+import DashboardRouter from "@/components/dashboard-router";
+
 function Router() {
   return (
     <Switch>
       <Route path="/auth" component={AuthPage} />
-      <ProtectedRoute path="/" component={DashboardPage} />
+      <ProtectedRoute path="/" component={DashboardRouter} />
       <ProtectedRoute path="/projects" component={ProjectsPage} />
       <ProtectedRoute path="/projects/:id" component={ProjectDetailPage} />
       <ProtectedRoute path="/tasks" component={TasksPage} />

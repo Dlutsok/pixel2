@@ -1,51 +1,50 @@
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+
+type TaskStatus = 
+  | "todo" 
+  | "in_progress" 
+  | "client_review" 
+  | "waiting_info" 
+  | "done" 
+  | "cancelled";
 
 interface TaskStatusBadgeProps {
-  status: string;
+  status: TaskStatus;
 }
 
+const statusConfig: Record<TaskStatus, { label: string; className: string }> = {
+  todo: {
+    label: "К выполнению",
+    className: "bg-slate-100 text-slate-800 hover:bg-slate-200"
+  },
+  in_progress: {
+    label: "В работе",
+    className: "bg-amber-100 text-amber-800 hover:bg-amber-200"
+  },
+  client_review: {
+    label: "Ожидает проверки",
+    className: "bg-purple-100 text-purple-800 hover:bg-purple-200"
+  },
+  waiting_info: {
+    label: "Ожидает информацию",
+    className: "bg-blue-100 text-blue-800 hover:bg-blue-200"
+  },
+  done: {
+    label: "Выполнено",
+    className: "bg-green-100 text-green-800 hover:bg-green-200"
+  },
+  cancelled: {
+    label: "Отменено",
+    className: "bg-red-100 text-red-800 hover:bg-red-200"
+  }
+};
+
 export default function TaskStatusBadge({ status }: TaskStatusBadgeProps) {
-  const getStatusConfig = () => {
-    switch (status) {
-      case "new":
-        return {
-          label: "Новая",
-          className: "bg-neutral-100 text-neutral-800 hover:bg-neutral-200"
-        };
-      case "in_progress":
-        return {
-          label: "В работе",
-          className: "bg-warning/10 text-warning hover:bg-warning/20"
-        };
-      case "review":
-        return {
-          label: "На проверке",
-          className: "bg-info/10 text-info hover:bg-info/20"
-        };
-      case "completed":
-        return {
-          label: "Завершена",
-          className: "bg-success/10 text-success hover:bg-success/20"
-        };
-      case "delayed":
-        return {
-          label: "Отложена",
-          className: "bg-neutral-400/10 text-neutral-600 hover:bg-neutral-400/20"
-        };
-      default:
-        return {
-          label: status,
-          className: "bg-neutral-200 text-neutral-700 hover:bg-neutral-300"
-        };
-    }
-  };
-  
-  const { label, className } = getStatusConfig();
+  const config = statusConfig[status] || statusConfig.todo;
   
   return (
-    <Badge className={cn("font-normal", className)} variant="outline">
-      {label}
+    <Badge className={config.className}>
+      {config.label}
     </Badge>
   );
 }
