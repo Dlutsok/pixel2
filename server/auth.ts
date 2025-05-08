@@ -136,7 +136,22 @@ export function setupAuth(app: Express) {
           return next(err);
         }
         console.log("Login successful for:", user.email, "Session ID:", req.sessionID);
-        return res.json(user);
+        
+        // Debug information about the session cookie to verify it's being sent correctly
+        console.log("Session cookie:", {
+          name: 'connect.sid',
+          value: req.sessionID,
+          options: sessionSettings.cookie
+        });
+        
+        // Explicitly save the session before responding
+        req.session.save(function(err) {
+          if (err) {
+            console.error("Session save error:", err);
+            return next(err);
+          }
+          return res.json(user);
+        });
       });
     })(req, res, next);
   });
@@ -150,10 +165,13 @@ export function setupAuth(app: Express) {
 
   app.get("/api/user", (req, res) => {
     console.log("Getting user info, authenticated:", req.isAuthenticated(), "Session ID:", req.sessionID);
+    console.log("Request headers:", req.headers);
+    
     if (!req.isAuthenticated()) {
       console.log("User not authenticated");
       return res.sendStatus(401);
     }
+    
     console.log("Returning user data for:", req.user.email);
     res.json(req.user);
   });
