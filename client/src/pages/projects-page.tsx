@@ -134,12 +134,12 @@ export default function ProjectsPage() {
               </DropdownMenuContent>
             </DropdownMenu>
             
-            {user?.role !== "client" && (
+            <Link href="/projects/new">
               <Button className="gap-2">
                 <Plus size={16} />
                 <span>Новый проект</span>
               </Button>
-            )}
+            </Link>
           </div>
         </div>
         

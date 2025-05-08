@@ -89,7 +89,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/projects", hasRole(["admin", "manager"]), async (req, res) => {
+  app.post("/api/projects", ensureAuthenticated, async (req, res) => {
     try {
       const projectData = insertProjectSchema.parse(req.body);
       const project = await storage.createProject(projectData);
