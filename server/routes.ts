@@ -943,21 +943,168 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // API для получения списка пользователей системы для выбора в формах
+  // Получение списка всех пользователей (только для администраторов)
+  app.get("/api/users", ensureAuthenticated, hasRole(["admin"]), async (req, res) => {
+    try {
+      const users = await storage.getAllUsers();
+      res.json(users);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      res.status(500).json({ message: "Failed to fetch users" });
+    }
+  });
+
+  // Получение конкретного пользователя по ID
+  app.get("/api/users/:id", ensureAuthenticated, hasRole(["admin"]), async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  // Создание нового пользователя (только для администраторов)
+  app.post("/api/users", ensureAuthenticated, hasRole(["admin"]), async (req, res) => {
+    try {
+      // Проверяем, не существует ли уже пользователь с таким email
+      const existingUser = await storage.getUserByEmail(req.body.email);
+      if (existingUser) {
+        return res.status(400).json({ message: "User with this email already exists" });
+      }
+      
+      // Хешируем пароль
+      const hashedPassword = await hashPassword(req.body.password);
+      
+      // Создаем инициалы для аватара
+      const avatarInitials = `${req.body.firstName.charAt(0)}${req.body.lastName.charAt(0)}`.toUpperCase();
+      
+      // Создаем пользователя
+      const userData = {
+        ...req.body,
+        password: hashedPassword,
+        avatarInitials
+      };
+      
+      const newUser = await storage.createUser(userData);
+      
+      // Удаляем пароль из ответа
+      const { password, ...userWithoutPassword } = newUser;
+      
+      res.status(201).json(userWithoutPassword);
+    } catch (error) {
+      console.error("Error creating user:", error);
+      res.status(500).json({ message: "Failed to create user" });
+    }
+  });
+
+  // Обновление пользователя (только для администраторов)
+  app.patch("/api/users/:id", ensureAuthenticated, hasRole(["admin"]), async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const userData = { ...req.body };
+      
+      // Проверяем существование пользователя
+      const existingUser = await storage.getUser(userId);
+      if (!existingUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Если меняется email, проверяем, не занят ли он
+      if (userData.email && userData.email !== existingUser.email) {
+        const userWithSameEmail = await storage.getUserByEmail(userData.email);
+        if (userWithSameEmail && userWithSameEmail.id !== userId) {
+          return res.status(400).json({ message: "Email is already in use" });
+        }
+      }
+      
+      // Создаем инициалы для аватара, если изменились имя или фамилия
+      if (userData.firstName || userData.lastName) {
+        const firstName = userData.firstName || existingUser.firstName;
+        const lastName = userData.lastName || existingUser.lastName;
+        userData.avatarInitials = `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+      }
+      
+      // Обновляем пользователя
+      const updatedUser = await storage.updateUser(userId, userData);
+      
+      // Удаляем пароль из ответа
+      const { password, ...userWithoutPassword } = updatedUser;
+      
+      res.json(userWithoutPassword);
+    } catch (error) {
+      console.error("Error updating user:", error);
+      res.status(500).json({ message: "Failed to update user" });
+    }
+  });
+
+  // Обновление пароля пользователя (только для администраторов)
+  app.patch("/api/users/:id/password", ensureAuthenticated, hasRole(["admin"]), async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const { password } = req.body;
+      
+      if (!password || password.length < 6) {
+        return res.status(400).json({ message: "Password must be at least 6 characters long" });
+      }
+      
+      // Проверяем существование пользователя
+      const existingUser = await storage.getUser(userId);
+      if (!existingUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Хешируем новый пароль
+      const hashedPassword = await hashPassword(password);
+      
+      // Обновляем пароль
+      await storage.updateUser(userId, { password: hashedPassword });
+      
+      res.json({ message: "Password updated successfully" });
+    } catch (error) {
+      console.error("Error updating password:", error);
+      res.status(500).json({ message: "Failed to update password" });
+    }
+  });
+
+  // Удаление пользователя (только для администраторов)
+  app.delete("/api/users/:id", ensureAuthenticated, hasRole(["admin"]), async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      
+      // Проверяем существование пользователя
+      const existingUser = await storage.getUser(userId);
+      if (!existingUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Запрещаем удалять самого себя
+      if (userId === req.user.id) {
+        return res.status(400).json({ message: "You cannot delete your own account" });
+      }
+      
+      // Удаляем пользователя
+      await storage.deleteUser(userId);
+      
+      res.json({ message: "User deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      res.status(500).json({ message: "Failed to delete user" });
+    }
+  });
+
   // GET /api/users/clients - получить список клиентов
   app.get("/api/users/clients", hasRole(["admin", "manager"]), async (req, res) => {
     try {
       // Получаем список пользователей с ролью client
-      const clients = await db.select({
-        id: users.id,
-        email: users.email,
-        firstName: users.firstName,
-        lastName: users.lastName,
-        company: users.company,
-        avatarInitials: users.avatarInitials
-      })
-      .from(users)
-      .where(eq(users.role, "client"));
-      
+      const clients = await storage.getUsersByRole("client");
       res.json(clients);
     } catch (error) {
       console.error("Error fetching clients:", error);
@@ -969,17 +1116,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/users/managers", hasRole(["admin"]), async (req, res) => {
     try {
       // Получаем список пользователей с ролью manager
-      const managers = await db.select({
-        id: users.id,
-        email: users.email,
-        firstName: users.firstName,
-        lastName: users.lastName,
-        company: users.company,
-        avatarInitials: users.avatarInitials
-      })
-      .from(users)
-      .where(eq(users.role, "manager"));
-      
+      const managers = await storage.getUsersByRole("manager");
       res.json(managers);
     } catch (error) {
       console.error("Error fetching managers:", error);

@@ -23,7 +23,9 @@ import {
   X,
 } from "lucide-react";
 
-import Layout from "@/components/layout";
+// Импортируем Layout из наших компонентов
+import Header from "@/components/layout/header";
+import Sidebar from "@/components/layout/sidebar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -163,17 +165,21 @@ export default function UsersPage() {
   // Проверка, является ли пользователь администратором
   if (user?.role !== "admin") {
     return (
-      <Layout>
-        <div className="p-6">
-          <Card>
-            <CardContent className="pt-6 text-center">
-              <h2 className="text-xl font-bold mb-2">Нет доступа</h2>
-              <p className="mb-4">Управление пользователями доступно только администраторам.</p>
-              <Button onClick={() => window.history.back()}>Вернуться назад</Button>
-            </CardContent>
-          </Card>
+      <div className="min-h-screen bg-neutral-50 flex">
+        <Sidebar />
+        <div className="flex-1">
+          <Header />
+          <div className="p-6">
+            <Card>
+              <CardContent className="pt-6 text-center">
+                <h2 className="text-xl font-bold mb-2">Нет доступа</h2>
+                <p className="mb-4">Управление пользователями доступно только администраторам.</p>
+                <Button onClick={() => window.history.back()}>Вернуться назад</Button>
+              </CardContent>
+            </Card>
+          </div>
         </div>
-      </Layout>
+      </div>
     );
   }
 
@@ -422,20 +428,23 @@ export default function UsersPage() {
   };
 
   return (
-    <Layout>
-      <div className="p-6">
-        <div className="mb-6">
-          <div className="flex justify-between items-center mb-4">
-            <h1 className="text-2xl font-bold font-heading">Управление пользователями</h1>
-            <Button onClick={() => setShowCreateDialog(true)}>
-              <Plus className="h-4 w-4 mr-1" />
-              Создать пользователя
-            </Button>
+    <div className="min-h-screen bg-neutral-50 flex">
+      <Sidebar />
+      <div className="flex-1">
+        <Header />
+        <div className="p-6">
+          <div className="mb-6">
+            <div className="flex justify-between items-center mb-4">
+              <h1 className="text-2xl font-bold font-heading">Управление пользователями</h1>
+              <Button onClick={() => setShowCreateDialog(true)}>
+                <Plus className="h-4 w-4 mr-1" />
+                Создать пользователя
+              </Button>
+            </div>
+            <p className="text-neutral-500">
+              Управляйте аккаунтами пользователей, меняйте их роли и создавайте новых пользователей.
+            </p>
           </div>
-          <p className="text-neutral-500">
-            Управляйте аккаунтами пользователей, меняйте их роли и создавайте новых пользователей.
-          </p>
-        </div>
 
         <Card>
           <CardHeader className="pb-3">
@@ -970,6 +979,7 @@ export default function UsersPage() {
           </DialogContent>
         </Dialog>
       </div>
-    </Layout>
+      </div>
+    </div>
   );
 }

@@ -27,6 +27,10 @@ export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser & { avatarInitials?: string }): Promise<User>;
+  getAllUsers(): Promise<User[]>;
+  getUsersByRole(role: string): Promise<User[]>;
+  updateUser(id: number, userData: Partial<User>): Promise<User>;
+  deleteUser(id: number): Promise<void>;
   
   // Project operations
   getAllProjects(): Promise<Project[]>;
@@ -129,10 +133,44 @@ export class DatabaseStorage implements IStorage {
       firstName: userData.firstName,
       lastName: userData.lastName,
       role: userData.role || 'client',
-      avatarInitials
+      avatarInitials,
+      company: userData.company || null,
+      phone: userData.phone || null
     }).returning();
     
     return user;
+  }
+  
+  async getAllUsers(): Promise<User[]> {
+    return await db.select().from(users);
+  }
+  
+  async getUsersByRole(role: string): Promise<User[]> {
+    return await db.select().from(users).where(eq(users.role, role));
+  }
+  
+  async updateUser(id: number, userData: Partial<User>): Promise<User> {
+    const [user] = await db.update(users)
+      .set(userData)
+      .where(eq(users.id, id))
+      .returning();
+    
+    if (!user) {
+      throw new Error(`User with ID ${id} not found`);
+    }
+    
+    return user;
+  }
+  
+  async deleteUser(id: number): Promise<void> {
+    // Проверяем, существует ли пользователь
+    const existingUser = await this.getUser(id);
+    if (!existingUser) {
+      throw new Error(`User with ID ${id} not found`);
+    }
+    
+    // Удаляем пользователя
+    await db.delete(users).where(eq(users.id, id));
   }
 
   // Project operations
