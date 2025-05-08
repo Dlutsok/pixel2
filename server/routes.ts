@@ -1,9 +1,12 @@
-import type { Express } from "express";
+import type { Express, Request } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, hashPassword, comparePasswords } from "./auth";
 import { db } from "./db";
 import { eq, ne, sql } from "drizzle-orm";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
 import {
   insertProjectSchema,
   insertTaskSchema,
@@ -987,6 +990,94 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching contacts:", error);
       res.status(500).json({ message: "Failed to fetch contacts" });
+    }
+  });
+
+  // Настраиваем сохранение загруженных файлов
+  const uploadsDir = path.join(process.cwd(), 'uploads');
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+
+  // Настройка multer для загрузки файлов
+  const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, uploadsDir);
+    },
+    filename: (req, file, cb) => {
+      // Добавляем временную метку к имени файла для уникальности
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      cb(null, uniqueSuffix + '-' + file.originalname);
+    }
+  });
+
+  const upload = multer({ storage });
+
+  // Загрузка файлов для проекта
+  app.post('/api/project-files/upload', ensureAuthenticated, upload.array('files'), async (req, res) => {
+    try {
+      if (!req.files || req.files.length === 0) {
+        return res.status(400).json({ message: 'No files uploaded' });
+      }
+
+      const projectId = parseInt(req.body.projectId);
+      if (isNaN(projectId)) {
+        return res.status(400).json({ message: 'Invalid project ID' });
+      }
+
+      // Проверка доступа к проекту
+      const project = await storage.getProject(projectId);
+      if (!project) {
+        return res.status(404).json({ message: 'Project not found' });
+      }
+
+      const userRole = req.user.role;
+      const userId = req.user.id;
+
+      if (userRole === "client" && project.clientId !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      if (userRole === "manager" && project.managerId !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      // Сохраняем информацию о файлах в базе данных
+      const savedFiles = [];
+      for (const file of req.files as Express.Multer.File[]) {
+        const fileData = {
+          projectId,
+          name: file.originalname,
+          path: file.path,
+          size: file.size,
+          type: file.mimetype,
+          uploadedById: userId,
+          uploadedAt: new Date(),
+        };
+
+        const savedFile = await storage.createProjectFile(fileData);
+        savedFiles.push(savedFile);
+      }
+
+      // Создаем активность для загрузки файлов
+      await storage.createActivity({
+        userId: req.user.id,
+        actionType: "files_uploaded",
+        resourceType: "project",
+        resourceId: projectId,
+        projectId: projectId,
+        description: `${savedFiles.length} files were uploaded to project "${project.name}"`,
+        createdAt: new Date(),
+        metadata: {
+          fileCount: savedFiles.length,
+          fileNames: savedFiles.map(f => f.name),
+        },
+      });
+
+      res.status(201).json(savedFiles);
+    } catch (error) {
+      console.error('Error uploading files:', error);
+      res.status(500).json({ message: 'Failed to upload files' });
     }
   });
 
