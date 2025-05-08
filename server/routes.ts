@@ -773,6 +773,112 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User profile routes
+  app.get("/api/users/contacts", ensureAuthenticated, async (req, res) => {
+    try {
+      // Get all users except current user
+      const allUsers = await db.select().from(users).where(sql`id != ${req.user.id}`);
+      
+      // Map to contact format
+      const contacts = allUsers.map(user => ({
+        id: user.id,
+        name: `${user.firstName} ${user.lastName}`.trim(),
+        email: user.email,
+        role: user.role,
+        avatarInitials: user.avatarInitials,
+      }));
+      
+      res.json(contacts);
+    } catch (error) {
+      console.error("Error fetching contacts:", error);
+      res.status(500).json({ message: "Failed to fetch contacts" });
+    }
+  });
+
+  // Update user profile
+  app.patch("/api/users/:id", ensureAuthenticated, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      
+      // Make sure user can only update their own profile
+      if (userId !== req.user.id && req.user.role !== "admin") {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      // Get the current user
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Update the user
+      const updatedUser = await db.update(users)
+        .set({
+          firstName: req.body.firstName || user.firstName,
+          lastName: req.body.lastName || user.lastName,
+          email: req.body.email || user.email,
+          company: req.body.company,
+          position: req.body.position,
+          phone: req.body.phone,
+          bio: req.body.bio,
+          // Generate avatar initials from first and last name
+          avatarInitials: req.body.firstName && req.body.lastName 
+            ? `${req.body.firstName[0]}${req.body.lastName[0]}`.toUpperCase()
+            : user.avatarInitials
+        })
+        .where(eq(users.id, userId))
+        .returning();
+      
+      // Return the updated user
+      if (updatedUser.length > 0) {
+        // Remove password from response
+        const { password, ...userWithoutPassword } = updatedUser[0];
+        res.json(userWithoutPassword);
+      } else {
+        res.status(500).json({ message: "Failed to update user" });
+      }
+    } catch (error) {
+      console.error("Error updating user:", error);
+      res.status(500).json({ message: "Failed to update user" });
+    }
+  });
+  
+  // Change user password
+  app.post("/api/users/change-password", ensureAuthenticated, async (req, res) => {
+    try {
+      const { currentPassword, newPassword } = req.body;
+      
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({ message: "Current password and new password are required" });
+      }
+      
+      // Get the current user
+      const user = await storage.getUser(req.user.id);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Verify current password
+      const isPasswordValid = await comparePasswords(currentPassword, user.password);
+      if (!isPasswordValid) {
+        return res.status(400).json({ message: "Current password is incorrect" });
+      }
+      
+      // Hash new password
+      const hashedPassword = await hashPassword(newPassword);
+      
+      // Update the user's password
+      await db.update(users)
+        .set({ password: hashedPassword })
+        .where(eq(users.id, req.user.id));
+      
+      res.json({ message: "Password updated successfully" });
+    } catch (error) {
+      console.error("Error changing password:", error);
+      res.status(500).json({ message: "Failed to change password" });
+    }
+  });
+
   // Setup HTTP server
   const httpServer = createServer(app);
   return httpServer;
